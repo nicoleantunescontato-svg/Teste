@@ -10,3 +10,4 @@ whisper.cpp
 # Client videos and their captions stay local
 public/ste.mp4
 public/ste.json
+temp
