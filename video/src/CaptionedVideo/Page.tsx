@@ -1,7 +1,12 @@
 import { makeTransform, scale, translateY } from "@remotion/animation-utils";
 import { TikTokPage } from "@remotion/captions";
 import React from "react";
-import { AbsoluteFill, interpolate } from "remotion";
+import {
+  AbsoluteFill,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig,
+} from "remotion";
 import { CaptionFont } from "../load-font";
 
 // Brand palette: white text, turquoise gradient for highlighted words
@@ -35,6 +40,25 @@ export const Page: React.FC<{
   readonly highlights: string[];
 }> = ({ enterProgress, page, highlights }) => {
   const highlightSet = new Set(highlights.map(normalize));
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const timeInMs = (frame / fps) * 1000;
+
+  // Words appear one at a time as they are spoken. Words not yet spoken are
+  // laid out but invisible, so the line doesn't shift when they appear.
+  const wordStyle = (fromMs: number): React.CSSProperties => {
+    const msSinceStart = timeInMs - (fromMs - page.startMs);
+    const progress = interpolate(msSinceStart, [0, 120], [0, 1], {
+      extrapolateLeft: "clamp",
+      extrapolateRight: "clamp",
+    });
+    return {
+      opacity: progress,
+      transform: makeTransform([
+        scale(interpolate(progress, [0, 1], [0.85, 1])),
+      ]),
+    };
+  };
 
   return (
     <AbsoluteFill style={container}>
@@ -59,7 +83,11 @@ export const Page: React.FC<{
             return (
               <span
                 key={`${t.fromMs}-${index}`}
-                style={{ display: "inline", whiteSpace: "pre" }}
+                style={{
+                  display: "inline-block",
+                  whiteSpace: "pre",
+                  ...wordStyle(t.fromMs),
+                }}
               >
                 {t.text}
               </span>
@@ -82,6 +110,7 @@ export const Page: React.FC<{
                 color: "transparent",
                 textShadow: "none",
                 filter: `drop-shadow(0 0 14px rgba(54, 179, 198, 0.55)) drop-shadow(0 4px 10px rgba(0, 0, 0, 0.35))`,
+                ...wordStyle(t.fromMs),
               }}
             >
               {t.text.trim()}
