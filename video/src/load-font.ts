@@ -1,6 +1,6 @@
 import { continueRender, delayRender, staticFile } from "remotion";
 
-export const TheBoldFont = `TheBoldFont`;
+export const CaptionFont = `Montserrat`;
 
 let loaded = false;
 
@@ -13,13 +13,17 @@ export const loadFont = async (): Promise<void> => {
 
   loaded = true;
 
-  const font = new FontFace(
-    TheBoldFont,
-    `url('${staticFile("theboldfont.ttf")}') format('truetype')`,
+  const fonts = [700, 800].map(
+    (weight) =>
+      new FontFace(
+        CaptionFont,
+        `url('${staticFile(`fonts/montserrat-latin-${weight}-normal.woff2`)}') format('woff2')`,
+        { weight: String(weight) },
+      ),
   );
 
-  await font.load();
-  document.fonts.add(font);
+  await Promise.all(fonts.map((f) => f.load()));
+  fonts.forEach((f) => document.fonts.add(f));
 
   continueRender(waitForFont);
 };

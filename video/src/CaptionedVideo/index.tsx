@@ -26,6 +26,8 @@ export const captionedVideoSchema = z.object({
   src: z.string(),
   // Set this when the browser can't read the video's metadata (e.g. Chromium without H.264)
   durationInSeconds: z.number().optional(),
+  // Words shown bigger, on their own line, in the turquoise gradient
+  highlights: z.array(z.string()).optional(),
 });
 
 export const calculateCaptionedVideoMetadata: CalculateMetadataFunction<
@@ -54,11 +56,12 @@ const getFileExists = (file: string) => {
 // Try out:
 // - 1500 to display a lot of words at a time
 // - 200 to only display 1 word at a time
-const SWITCH_CAPTIONS_EVERY_MS = 1200;
+const SWITCH_CAPTIONS_EVERY_MS = 700;
 
 export const CaptionedVideo: React.FC<{
   src: string;
-}> = ({ src }) => {
+  highlights?: string[];
+}> = ({ src, highlights = [] }) => {
   const [subtitles, setSubtitles] = useState<Caption[]>([]);
   const { delayRender, continueRender } = useDelayRender();
   const [handle] = useState(() => delayRender());
@@ -135,7 +138,7 @@ export const CaptionedVideo: React.FC<{
             from={subtitleStartFrame}
             durationInFrames={durationInFrames}
           >
-            <SubtitlePage key={index} page={page} />;
+            <SubtitlePage key={index} page={page} highlights={highlights} />
           </Sequence>
         );
       })}
