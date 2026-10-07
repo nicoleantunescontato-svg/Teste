@@ -24,17 +24,21 @@ export type SubtitleProp = {
 
 export const captionedVideoSchema = z.object({
   src: z.string(),
+  // Set this when the browser can't read the video's metadata (e.g. Chromium without H.264)
+  durationInSeconds: z.number().optional(),
 });
 
 export const calculateCaptionedVideoMetadata: CalculateMetadataFunction<
   z.infer<typeof captionedVideoSchema>
 > = async ({ props }) => {
   const fps = 30;
-  const metadata = await getVideoMetadata(props.src);
+  const durationInSeconds =
+    props.durationInSeconds ??
+    (await getVideoMetadata(props.src)).durationInSeconds;
 
   return {
     fps,
-    durationInFrames: Math.floor(metadata.durationInSeconds * fps),
+    durationInFrames: Math.floor(durationInSeconds * fps),
   };
 };
 
