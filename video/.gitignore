@@ -6,3 +6,7 @@ dist
 # Ignore the output video from Git but not videos you import into src/.
 out
 whisper.cpp
+
+# Client videos and their captions stay local
+public/ste.mp4
+public/ste.json
