@@ -402,16 +402,23 @@
     });
 
     var vRaw = document.getElementById('vRaw'), vEdit = document.getElementById('vEdit');
-    var ready = 0;
-    function onReady(v, clip) {
-      v.addEventListener('loadeddata', function () {
-        clip.classList.add('ready'); ready++;
-        if (ready === 2) { vRaw.currentTime = 0; vEdit.currentTime = 0; vRaw.play().catch(function(){}); vEdit.play().catch(function(){}); }
-        if (v === vEdit) document.getElementById('sound').hidden = false;
+    var clips = [[vRaw, document.getElementById('clipRaw')], [vEdit, document.getElementById('clipEdit')]];
+    var started = false;
+    function check() {
+      clips.forEach(function (c) {
+        if (c[0].readyState >= 2) c[1].classList.add('ready');
       });
+      if (vEdit.readyState >= 2) document.getElementById('sound').hidden = false;
+      if (!started && vRaw.readyState >= 3 && vEdit.readyState >= 3) {
+        started = true;
+        vRaw.currentTime = 0; vEdit.currentTime = 0;
+        vRaw.play().catch(function () {}); vEdit.play().catch(function () {});
+      }
     }
-    onReady(vRaw, document.getElementById('clipRaw'));
-    onReady(vEdit, document.getElementById('clipEdit'));
+    clips.forEach(function (c) {
+      ['loadeddata', 'canplay', 'canplaythrough'].forEach(function (e) { c[0].addEventListener(e, check); });
+    });
+    check();
     document.getElementById('sound').addEventListener('click', function () {
       vEdit.muted = !vEdit.muted; this.textContent = vEdit.muted ? 'Ouvir' : 'Mudo';
     });
