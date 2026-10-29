@@ -92,16 +92,20 @@
   .price-line { display: flex; align-items: baseline; gap: 12px; margin-bottom: 26px; }
   .price-line strong { font-family: var(--font-display); font-size: 3rem; font-weight: 800; letter-spacing: -.03em; }
   .price-line small { color: var(--muted); }
-  .hero-art { position: relative; width: 100%; max-width: 440px; justify-self: center; aspect-ratio: 4/5; background: var(--band-bg); border: 2px solid var(--line); border-radius: var(--radius); box-shadow: 10px 10px 0 var(--line); display: grid; place-items: center; transform: rotate(2deg); }
-  .phone { width: 62%; aspect-ratio: 9/16; background: var(--screen); color: var(--screen-fg); border: 6px solid var(--surface); border-radius: 22px; position: relative; overflow: hidden; transform: rotate(-3deg); }
-  .rec { position: absolute; top: 14px; left: 14px; display: flex; align-items: center; gap: 6px; font-size: .7rem; font-weight: 700; }
-  .rec i { width: 9px; height: 9px; border-radius: 50%; background: #e0543c; animation: blink 1.2s infinite; }
-  @keyframes blink { 50% { opacity: .2; } }
-  .cap { position: absolute; left: 8%; right: 8%; bottom: 16%; text-align: center; font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; line-height: 1.2; }
-  .cap b { background: var(--spark); color: #14201a; padding: 0 .25em; border-radius: 4px; }
+  .hero-art { position: relative; width: 100%; max-width: 460px; justify-self: center; background: var(--band-bg); border: 2px solid var(--line); border-radius: var(--radius); box-shadow: 10px 10px 0 var(--line); padding: 22px 22px 18px; transform: rotate(1.5deg); }
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .compare figure { margin: 0; min-width: 0; }
+  .clip { position: relative; aspect-ratio: 9/16; background: var(--screen); color: var(--screen-fg); border: 5px solid var(--surface); border-radius: 20px; overflow: hidden; display: grid; place-items: center; text-align: center; font-weight: 700; font-size: .8rem; padding: 12px; }
+  .clip video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .clip .empty { opacity: .7; }
+  .clip.ready .empty { display: none; }
+  .compare figcaption { margin-top: 10px; text-align: center; font-size: .8rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--band-fg); }
+  .compare figcaption.win { color: var(--band-fg); }
+  .compare figcaption.win::before { content: "✦ "; color: var(--spark); }
+  .sound { position: absolute; right: 10px; bottom: 10px; z-index: 2; font: inherit; font-size: .75rem; font-weight: 700; cursor: pointer; background: var(--surface); color: var(--fg); border: 2px solid var(--line); border-radius: 999px; padding: .3em .8em; }
   .sticker { position: absolute; background: var(--surface); color: var(--fg); border: 2px solid var(--line); border-radius: 12px; padding: .45em .9em; font-weight: 700; font-size: .85rem; box-shadow: 3px 3px 0 var(--line); }
-  .s1 { top: 8%; left: -6%; transform: rotate(-6deg); }
-  .s2 { bottom: 10%; right: -5%; transform: rotate(5deg); background: var(--soft); }
+  .s1 { top: -14px; left: -8px; transform: rotate(-6deg); }
+  .s2 { bottom: 24px; right: -10px; transform: rotate(5deg); background: var(--soft); }
   .star { position: absolute; top: 28px; right: 5%; font-size: 4.5rem; color: var(--brown); line-height: 1; pointer-events: none; }
 
   /* Marquee */
@@ -205,8 +209,8 @@
     .cards { grid-template-columns: 1fr; }
     .pad { padding-block: 64px; }
     .hero { padding-block: 48px 72px; }
-    .hero-art { max-width: 340px; }
-    .s1 { left: -2%; } .s2 { right: -2%; }
+    .hero-art { max-width: 380px; }
+    .s1 { left: 0; } .s2 { right: 0; }
     .avatar { max-width: 220px; font-size: 3.6rem; }
   }
   @media (prefers-reduced-motion: reduce) {
@@ -226,13 +230,18 @@
       <div class="price-line"><strong>R$9,90</strong><small>pagamento único</small></div>
       <a class="btn" href="#oferta">Quero gravar e postar <span class="arrow">→</span></a>
     </div>
-    <div class="hero-art" aria-hidden="true">
-      <div class="phone">
-        <div class="rec"><i></i> REC</div>
-        <div class="cap">você <b>grava</b>,<br>o Claude <b>edita</b></div>
+    <div class="hero-art">
+      <div class="compare">
+        <figure>
+          <div class="clip" id="clipRaw"><span class="empty">vídeo cru</span><video id="vRaw" src="videos/cru.mp4" muted loop playsinline preload="metadata" aria-label="Vídeo cru, sem edição"></video></div>
+          <figcaption>Vídeo cru</figcaption>
+        </figure>
+        <figure>
+          <div class="clip" id="clipEdit"><span class="empty">editado pelo Claude</span><video id="vEdit" src="videos/editado.mp4" muted loop playsinline preload="metadata" aria-label="O mesmo vídeo editado pelo Claude"></video><button type="button" class="sound" id="sound" hidden>Ouvir</button></div>
+          <figcaption class="win">Editado pelo Claude</figcaption>
+        </figure>
       </div>
-      <span class="sticker s1">sem timeline</span>
-      <span class="sticker s2">legenda pronta</span>
+      <span class="sticker s1">mesmo vídeo, 2 versões</span>
     </div>
   </div>
 </header>
@@ -390,6 +399,21 @@
         btns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
         note.textContent = notes[+b.dataset.step];
       });
+    });
+
+    var vRaw = document.getElementById('vRaw'), vEdit = document.getElementById('vEdit');
+    var ready = 0;
+    function onReady(v, clip) {
+      v.addEventListener('loadeddata', function () {
+        clip.classList.add('ready'); ready++;
+        if (ready === 2) { vRaw.currentTime = 0; vEdit.currentTime = 0; vRaw.play().catch(function(){}); vEdit.play().catch(function(){}); }
+        if (v === vEdit) document.getElementById('sound').hidden = false;
+      });
+    }
+    onReady(vRaw, document.getElementById('clipRaw'));
+    onReady(vEdit, document.getElementById('clipEdit'));
+    document.getElementById('sound').addEventListener('click', function () {
+      vEdit.muted = !vEdit.muted; this.textContent = vEdit.muted ? 'Ouvir' : 'Mudo';
     });
   })();
 </script>
