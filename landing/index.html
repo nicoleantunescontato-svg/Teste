@@ -3,254 +3,321 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gravou, Postou. — Aulão de edição com Claude</title>
-<meta name="description" content="Aulão rápido para editar seus vídeos com Claude, sem abrir editor e sem passar horas na timeline.">
+<title>Gravou, Postou.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <style>
+  /* Layout: faixas de largura total, blocos verdes e bege com sombra marrom e bordas rasgadas na virada. */
   :root {
-    --pink: #e85bc0;
-    --pink-soft: #fbe3f4;
-    --pink-deep: #c93aa0;
-    --lilac: #b79cff;
-    --ink: #141214;
-    --paper: #fff7fc;
-    --radius: 28px;
+    --font-display: 'Bricolage Grotesque', 'Arial Black', system-ui, sans-serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+    --font-hand: 'Caveat', cursive;
+
+    --bg: #f1e7d3;
+    --surface: #faf4e8;
+    --fg: #1a2a20;
+    --muted: #55604f;
+    --green: #1f3a2c;
+    --green-fg: #f1e7d3;
+    --brown: #7b5238;
+    --hl-bg: #7b5238;
+    --hl-fg: #f6eddc;
+    --soft: #e2d2b5;
+    --line: #1f3a2c;
+    --band-bg: #7b5238;
+    --band-fg: #f6eddc;
+    --btn-bg: #1f3a2c;
+    --btn-fg: #f1e7d3;
+    --btn-shadow: #7b5238;
+    --spark: #c18a5f;
+    --screen: #16241c;
+    --screen-fg: #f1e7d3;
+    --radius: 26px;
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111b15; --surface: #1a281f; --fg: #efe5d1; --muted: #b5b3a1;
+      --green: #25422f; --green-fg: #efe5d1; --brown: #c18a5f;
+      --hl-bg: #c18a5f; --hl-fg: #14201a; --soft: #26372b; --line: #efe5d1;
+      --band-bg: #4a3626; --band-fg: #efe5d1;
+      --btn-bg: #efe5d1; --btn-fg: #14201a; --btn-shadow: #c18a5f;
+      --spark: #c18a5f; --screen: #0b120e; --screen-fg: #efe5d1;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111b15; --surface: #1a281f; --fg: #efe5d1; --muted: #b5b3a1;
+    --green: #25422f; --green-fg: #efe5d1; --brown: #c18a5f;
+    --hl-bg: #c18a5f; --hl-fg: #14201a; --soft: #26372b; --line: #efe5d1;
+    --band-bg: #4a3626; --band-fg: #efe5d1;
+    --btn-bg: #efe5d1; --btn-fg: #14201a; --btn-shadow: #c18a5f;
+    --spark: #c18a5f; --screen: #0b120e; --screen-fg: #efe5d1;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
   html { scroll-behavior: smooth; overflow-x: clip; }
   body {
-    font-family: 'Poppins', system-ui, sans-serif;
-    background: var(--paper);
-    color: var(--ink);
-    line-height: 1.5;
+    margin: 0; background: var(--bg); color: var(--fg);
+    font-family: var(--font-body); font-size: 16px; line-height: 1.55;
     overflow-x: clip;
   }
-  .wrap { width: min(1080px, 100% - 32px); margin-inline: auto; }
-  .hand { font-family: 'Caveat', cursive; font-weight: 700; }
-  .hl { background: var(--pink); color: #fff; padding: 0 .25em; border-radius: 6px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
-  .hl-soft { background: var(--pink-soft); padding: 0 .25em; border-radius: 6px; }
+  h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; }
+  p { margin: 0; }
+  .wrap {
+    width: min(1080px, 100%); margin-inline: auto;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .hand { font-family: var(--font-hand); font-weight: 700; color: var(--brown); font-size: 1.6rem; line-height: 1.1; }
+  .hl { background: var(--hl-bg); color: var(--hl-fg); padding: 0 .22em; border-radius: 6px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+  a:focus-visible, summary:focus-visible, input:focus-visible { outline: 3px solid var(--brown); outline-offset: 3px; }
 
-  /* Button */
   .btn {
-    display: inline-flex; align-items: center; gap: .6em;
-    background: var(--ink); color: #fff; text-decoration: none;
-    font-weight: 700; font-size: 1rem;
-    padding: 1em 1.6em; border-radius: 999px;
-    border: 2px solid var(--ink);
-    box-shadow: 4px 4px 0 var(--pink);
+    display: inline-flex; align-items: center; gap: .65em;
+    background: var(--btn-bg); color: var(--btn-fg); text-decoration: none;
+    font-weight: 700; padding: 1em 1.5em; border-radius: 999px;
+    border: 2px solid var(--line); box-shadow: 4px 4px 0 var(--btn-shadow);
     transition: transform .15s, box-shadow .15s;
   }
-  .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--pink); }
-  .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--pink); }
-  .btn .arrow { background: var(--pink); color: var(--ink); width: 1.7em; height: 1.7em; border-radius: 50%; display: grid; place-items: center; font-size: .9em; }
-  .btn.on-dark { background: var(--pink); color: var(--ink); border-color: var(--pink); box-shadow: 4px 4px 0 #fff; }
-  .btn.on-dark .arrow { background: var(--ink); color: #fff; }
-  .btn.on-dark:hover { box-shadow: 6px 6px 0 #fff; }
-
-  /* Marquee */
-  .marquee { background: var(--ink); color: #fff; overflow: hidden; transform: rotate(-1.2deg); margin: -6px -10px; position: relative; z-index: 3; }
-  .marquee-track { display: flex; width: max-content; animation: slide 28s linear infinite; }
-  .marquee span { font-weight: 600; font-size: .85rem; padding: .85em 1.6em; white-space: nowrap; }
-  .marquee span::after { content: "✦"; color: var(--pink); margin-left: 3.2em; }
-  @keyframes slide { to { transform: translateX(-50%); } }
+  .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--btn-shadow); }
+  .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--btn-shadow); }
+  .btn .arrow { background: var(--hl-bg); color: var(--hl-fg); width: 1.7em; height: 1.7em; border-radius: 50%; display: grid; place-items: center; }
 
   /* Hero */
-  .hero { padding: 72px 0 90px; position: relative; overflow: hidden; background: radial-gradient(circle at 80% 20%, var(--pink-soft), transparent 55%); }
+  .hero { padding-block: 72px 96px; overflow: hidden; position: relative; }
   .hero-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; }
-  .eyebrow { display: inline-block; background: var(--ink); color: #fff; font-size: .8rem; font-weight: 600; padding: .45em 1em; border-radius: 999px; margin-bottom: 20px; transform: rotate(-2deg); }
-  h1 { font-size: clamp(3rem, 9vw, 6rem); line-height: .95; font-weight: 800; letter-spacing: -.03em; }
-  h1 em { font-style: normal; display: block; color: var(--pink); }
-  .hero p.lead { font-size: 1.2rem; max-width: 30em; margin: 24px 0 28px; }
-  .price-tag { display: inline-flex; align-items: baseline; gap: .4em; margin-bottom: 26px; }
-  .price-tag strong { font-size: 3rem; font-weight: 800; letter-spacing: -.03em; }
-  .price-tag small { font-size: .95rem; opacity: .7; }
-  .hero-art { position: relative; aspect-ratio: 4/5; background: var(--pink); border-radius: var(--radius); display: grid; place-items: center; transform: rotate(2deg); box-shadow: 10px 10px 0 var(--ink); }
-  .hero-art .screen { width: 62%; aspect-ratio: 9/16; background: var(--ink); border-radius: 22px; border: 6px solid #fff; position: relative; overflow: hidden; transform: rotate(-3deg); }
-  .hero-art .screen::before { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, #2a2230, #141214); }
-  .hero-art .rec { position: absolute; top: 14px; left: 14px; z-index: 1; display: flex; align-items: center; gap: 6px; color: #fff; font-size: .7rem; font-weight: 700; }
-  .hero-art .rec i { width: 9px; height: 9px; border-radius: 50%; background: #ff4d6d; animation: blink 1.2s infinite; }
+  .hero-grid > * { min-width: 0; }
+  .tag { display: inline-block; background: var(--green); color: var(--green-fg); font-size: .8rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: .5em 1.1em; border-radius: 999px; transform: rotate(-2deg); margin-bottom: 22px; }
+  h1 { font-size: clamp(3.2rem, 10vw, 6.4rem); line-height: .92; font-weight: 800; letter-spacing: -.035em; }
+  h1 em { font-style: normal; display: block; color: var(--brown); }
+  .lead { font-size: 1.2rem; max-width: 30em; margin: 24px 0 26px; }
+  .price-line { display: flex; align-items: baseline; gap: 12px; margin-bottom: 26px; }
+  .price-line strong { font-family: var(--font-display); font-size: 3rem; font-weight: 800; letter-spacing: -.03em; }
+  .price-line small { color: var(--muted); }
+  .hero-art { position: relative; width: 100%; max-width: 440px; justify-self: center; aspect-ratio: 4/5; background: var(--band-bg); border: 2px solid var(--line); border-radius: var(--radius); box-shadow: 10px 10px 0 var(--line); display: grid; place-items: center; transform: rotate(2deg); }
+  .phone { width: 62%; aspect-ratio: 9/16; background: var(--screen); color: var(--screen-fg); border: 6px solid var(--surface); border-radius: 22px; position: relative; overflow: hidden; transform: rotate(-3deg); }
+  .rec { position: absolute; top: 14px; left: 14px; display: flex; align-items: center; gap: 6px; font-size: .7rem; font-weight: 700; }
+  .rec i { width: 9px; height: 9px; border-radius: 50%; background: #e0543c; animation: blink 1.2s infinite; }
   @keyframes blink { 50% { opacity: .2; } }
-  .hero-art .caption { position: absolute; bottom: 18%; left: 8%; right: 8%; z-index: 1; text-align: center; color: #fff; font-weight: 800; font-size: 1.05rem; line-height: 1.2; }
-  .hero-art .caption b { background: var(--pink); padding: 0 .25em; border-radius: 4px; }
-  .sticker { position: absolute; background: #fff; border: 2px solid var(--ink); border-radius: 14px; padding: .5em .9em; font-weight: 700; font-size: .85rem; box-shadow: 3px 3px 0 var(--ink); }
-  .sticker.s1 { top: 8%; left: -8%; transform: rotate(-6deg); }
-  .sticker.s2 { bottom: 10%; right: -6%; transform: rotate(5deg); background: var(--lilac); }
+  .cap { position: absolute; left: 8%; right: 8%; bottom: 16%; text-align: center; font-family: var(--font-display); font-weight: 800; font-size: 1.1rem; line-height: 1.2; }
+  .cap b { background: var(--spark); color: #14201a; padding: 0 .25em; border-radius: 4px; }
+  .sticker { position: absolute; background: var(--surface); color: var(--fg); border: 2px solid var(--line); border-radius: 12px; padding: .45em .9em; font-weight: 700; font-size: .85rem; box-shadow: 3px 3px 0 var(--line); }
+  .s1 { top: 8%; left: -6%; transform: rotate(-6deg); }
+  .s2 { bottom: 10%; right: -5%; transform: rotate(5deg); background: var(--soft); }
+  .star { position: absolute; top: 28px; right: 5%; font-size: 4.5rem; color: var(--brown); line-height: 1; pointer-events: none; }
 
-  .star { position: absolute; color: var(--pink); font-size: 5rem; line-height: 1; pointer-events: none; }
+  /* Marquee */
+  .marquee { background: var(--green); color: var(--green-fg); overflow: hidden; transform: rotate(-1.2deg); margin-inline: -10px; position: relative; z-index: 2; }
+  .track { display: flex; width: max-content; animation: slide 30s linear infinite; }
+  .track span { font-weight: 700; font-size: .85rem; padding: .85em 1.6em; white-space: nowrap; }
+  .track span::after { content: "✦"; color: var(--spark); margin-left: 3.2em; }
+  @keyframes slide { to { transform: translateX(-50%); } }
 
-  /* Sections */
-  section { position: relative; }
-  .pad { padding: 90px 0; }
-  h2 { font-size: clamp(1.8rem, 4.5vw, 2.8rem); line-height: 1.1; font-weight: 800; letter-spacing: -.02em; }
+  .pad { padding-block: 90px; }
 
-  /* Pain */
-  .pain { background: var(--ink); color: #fff; border-radius: var(--radius); padding: clamp(32px, 6vw, 72px); position: relative; overflow: hidden; }
-  .pain::after { content: "✸"; position: absolute; right: -30px; top: -40px; font-size: 14rem; color: var(--pink); opacity: .9; line-height: 1; }
-  .pain h2 { max-width: 14em; position: relative; z-index: 1; }
-  .pain p { margin-top: 20px; max-width: 32em; font-size: 1.15rem; opacity: .85; position: relative; z-index: 1; }
-  .pain .punch { margin-top: 32px; display: inline-block; position: relative; z-index: 1; background: var(--pink); color: var(--ink); font-weight: 700; padding: .7em 1.2em; border-radius: 14px; transform: rotate(-1.5deg); }
+  /* Dor */
+  .pain { background: var(--green); color: var(--green-fg); border-radius: var(--radius); padding: clamp(28px, 6vw, 68px); position: relative; overflow: hidden; display: grid; grid-template-columns: 1.15fr .85fr; gap: 36px; align-items: center; }
+  .pain > * { min-width: 0; position: relative; z-index: 1; }
+  .pain::after { content: "✸"; position: absolute; right: -34px; top: -50px; font-size: 14rem; line-height: 1; color: var(--brown); opacity: .55; z-index: 0; }
+  .pain h2 { font-size: clamp(1.9rem, 4.6vw, 3rem); line-height: 1.05; }
+  .pain .sub { margin-top: 18px; max-width: 30em; font-size: 1.1rem; opacity: .9; }
+  .punch { margin-top: 28px; display: inline-block; background: var(--hl-bg); color: var(--hl-fg); font-weight: 700; padding: .7em 1.2em; border-radius: 14px; transform: rotate(-1.5deg); }
+
+  /* Calculadora */
+  .calc { background: var(--surface); color: var(--fg); border: 2px solid var(--line); border-radius: 20px; padding: 24px; box-shadow: 6px 6px 0 var(--brown); }
+  .calc h3 { font-size: 1.15rem; margin-bottom: 4px; }
+  .calc .hint { font-size: .85rem; color: var(--muted); margin-bottom: 18px; }
+  .field { margin-bottom: 18px; }
+  .field label { display: flex; justify-content: space-between; gap: 10px; font-weight: 700; font-size: .9rem; margin-bottom: 8px; }
+  .field output { font-family: var(--font-display); color: var(--brown); }
+  input[type=range] { width: 100%; accent-color: var(--brown); }
+  .result { background: var(--green); color: var(--green-fg); border-radius: 14px; padding: 16px 18px; }
+  .result strong { display: block; font-family: var(--font-display); font-size: 2.4rem; line-height: 1; letter-spacing: -.02em; }
+  .result span { font-size: .9rem; opacity: .9; }
 
   /* Virada */
-  .turn { background: var(--pink); position: relative; padding: 110px 0; margin-top: 60px; }
-  .turn::before, .turn::after { content: ""; position: absolute; left: 0; right: 0; height: 26px; background: var(--pink); }
+  .turn { background: var(--band-bg); color: var(--band-fg); position: relative; padding-block: 110px; margin-top: 56px; text-align: center; }
+  .turn::before, .turn::after { content: ""; position: absolute; left: 0; right: 0; height: 26px; background: var(--band-bg); }
   .turn::before { top: -25px; clip-path: polygon(0 100%, 3% 30%, 7% 80%, 12% 20%, 17% 75%, 23% 25%, 28% 85%, 34% 30%, 40% 80%, 46% 15%, 52% 75%, 58% 30%, 64% 85%, 70% 20%, 76% 80%, 82% 25%, 88% 80%, 94% 20%, 100% 70%, 100% 100%); }
   .turn::after { bottom: -25px; clip-path: polygon(0 0, 100% 0, 100% 30%, 95% 80%, 90% 25%, 84% 75%, 78% 20%, 72% 80%, 66% 30%, 60% 85%, 54% 25%, 48% 80%, 42% 20%, 36% 75%, 30% 25%, 24% 80%, 18% 30%, 12% 85%, 6% 25%, 0 75%); }
-  .turn .wrap { text-align: center; max-width: 820px; }
-  .turn h2 { color: var(--ink); font-size: clamp(1.7rem, 4.2vw, 2.6rem); }
-  .turn h2 .hl { background: var(--ink); }
-  .turn p { margin-top: 26px; font-size: 1.25rem; font-weight: 500; }
-  .flow { margin-top: 36px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; align-items: center; }
-  .flow span { background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: .55em 1.3em; font-weight: 800; box-shadow: 3px 3px 0 var(--ink); }
-  .flow i { font-style: normal; font-weight: 800; font-size: 1.4rem; }
+  .turn .inner { max-width: 820px; margin-inline: auto; }
+  .turn h2 { font-size: clamp(1.8rem, 4.4vw, 2.8rem); line-height: 1.1; }
+  .turn h2 .hl { background: var(--green); color: var(--green-fg); }
+  .turn p { margin-top: 24px; font-size: 1.2rem; }
+  .flow { margin-top: 34px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; align-items: center; }
+  .flow button { font: inherit; font-weight: 700; cursor: pointer; background: var(--surface); color: var(--fg); border: 2px solid var(--line); border-radius: 999px; padding: .6em 1.3em; box-shadow: 3px 3px 0 var(--green); transition: transform .15s, background .15s; }
+  .flow button[aria-pressed="true"] { background: var(--green); color: var(--green-fg); transform: translate(-1px, -1px); }
+  .flow i { font-style: normal; font-weight: 800; font-size: 1.3rem; }
+  .flow-note { margin-top: 20px; min-height: 3.2em; font-size: 1.05rem; }
 
   /* Recebe */
-  .recebe-head { text-align: center; margin-bottom: 50px; }
-  .recebe-head .hand { color: var(--pink-deep); font-size: 1.6rem; display: block; margin-bottom: 6px; }
-  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
-  .card { background: #fff; border: 2px solid var(--ink); border-radius: var(--radius); padding: 30px; box-shadow: 6px 6px 0 var(--ink); position: relative; }
-  .card:nth-child(2) { background: var(--pink-soft); }
-  .card:nth-child(3) { background: var(--pink-soft); }
-  .card .num { position: absolute; top: -16px; left: 24px; background: var(--pink); color: #fff; font-weight: 800; border: 2px solid var(--ink); border-radius: 999px; width: 40px; height: 40px; display: grid; place-items: center; }
-  .card h3 { font-size: 1.3rem; line-height: 1.2; margin: 6px 0 10px; font-weight: 800; }
-  .card p { opacity: .85; }
-  .card ul { margin-top: 14px; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
-  .card li { background: var(--ink); color: #fff; font-size: .8rem; font-weight: 600; padding: .35em .9em; border-radius: 999px; }
-  .card .meta { margin-top: 14px; display: inline-block; font-size: .85rem; font-weight: 700; color: var(--pink-deep); }
+  .head { text-align: center; margin-bottom: 48px; display: grid; gap: 6px; }
+  h2.title { font-size: clamp(1.9rem, 4.6vw, 3rem); line-height: 1.05; letter-spacing: -.02em; }
+  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  .card { background: var(--surface); border: 2px solid var(--line); border-radius: var(--radius); padding: 32px 28px 28px; box-shadow: 6px 6px 0 var(--line); position: relative; min-width: 0; }
+  .card.alt { background: var(--soft); }
+  .card h3 { font-size: 1.35rem; line-height: 1.15; margin-bottom: 8px; }
+  .card p { color: var(--muted); }
+  .card ul { list-style: none; margin: 16px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .card li { background: var(--green); color: var(--green-fg); font-size: .8rem; font-weight: 700; padding: .35em .9em; border-radius: 999px; }
+  .meta { margin-top: 14px; display: inline-block; font-size: .85rem; font-weight: 700; color: var(--brown); }
 
   /* Pra quem */
-  .for { background: var(--ink); color: #fff; border-radius: var(--radius); padding: clamp(32px, 6vw, 64px); display: grid; grid-template-columns: .9fr 1.1fr; gap: 40px; align-items: center; }
-  .for h2 span { color: var(--pink); }
-  .for ul { list-style: none; display: grid; gap: 14px; }
-  .for li { display: flex; gap: 14px; align-items: flex-start; background: rgba(255,255,255,.07); border-radius: 18px; padding: 18px 20px; font-size: 1.05rem; }
-  .for li::before { content: "✓"; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--pink); color: var(--ink); font-weight: 800; display: grid; place-items: center; }
-
-  /* CTA final */
-  .cta { text-align: center; padding: 90px 0 110px; }
-  .cta .box { background: var(--pink); border: 2px solid var(--ink); border-radius: var(--radius); padding: clamp(36px, 7vw, 80px) 24px; box-shadow: 10px 10px 0 var(--ink); }
-  .cta h2 { font-size: clamp(2.2rem, 6vw, 4rem); }
-  .cta .price-big { font-size: clamp(3.5rem, 11vw, 7rem); font-weight: 800; letter-spacing: -.04em; line-height: 1; margin: 18px 0 8px; }
-  .cta p { margin-bottom: 28px; font-weight: 500; }
-
+  .for { background: var(--green); color: var(--green-fg); border-radius: var(--radius); padding: clamp(28px, 6vw, 60px); display: grid; grid-template-columns: .9fr 1.1fr; gap: 36px; align-items: center; }
+  .for > * { min-width: 0; }
+  .for h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.05; }
+  .for h2 span { color: var(--spark); }
+  .for ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  .for li { display: flex; gap: 14px; align-items: flex-start; background: rgba(241,231,211,.1); border-radius: 16px; padding: 16px 18px; }
+  .for li::before { content: "✓"; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--hl-bg); color: var(--hl-fg); font-weight: 800; display: grid; place-items: center; }
 
   /* Quem ensina */
   .teacher { display: grid; grid-template-columns: .7fr 1.3fr; gap: 40px; align-items: center; }
-  .avatar { aspect-ratio: 4/5; background: var(--pink); border: 2px solid var(--ink); border-radius: var(--radius); box-shadow: 8px 8px 0 var(--ink); display: grid; place-items: center; transform: rotate(-2deg); font-size: 5rem; font-weight: 800; color: #fff; letter-spacing: -.04em; }
-  .teacher .hand { color: var(--pink-deep); font-size: 1.6rem; display: block; }
-  .teacher h2 { margin: 4px 0 14px; }
+  .teacher > * { min-width: 0; }
+  .avatar { width: 100%; max-width: 300px; aspect-ratio: 4/5; background: var(--band-bg); color: var(--band-fg); border: 2px solid var(--line); border-radius: var(--radius); box-shadow: 8px 8px 0 var(--line); display: grid; place-items: center; transform: rotate(-2deg); font-family: var(--font-display); font-weight: 800; font-size: 4.5rem; letter-spacing: -.04em; }
+  .teacher h2 { font-size: clamp(2rem, 4.6vw, 3rem); margin: 2px 0 12px; }
   .teacher p { font-size: 1.1rem; }
-  .teacher .proof { margin-top: 16px; background: var(--pink-soft); border-left: 5px solid var(--pink); border-radius: 0 14px 14px 0; padding: 14px 18px; font-weight: 500; }
+  .proof { margin-top: 16px; background: var(--soft); border-left: 5px solid var(--brown); border-radius: 0 14px 14px 0; padding: 14px 18px; font-weight: 500; }
 
-  /* Oferta extras */
-  .stack { list-style: none; display: inline-grid; gap: 8px; text-align: left; margin: 6px 0 22px; font-weight: 600; }
-  .stack li::before { content: "✓ "; font-weight: 800; }
-  .coffee { font-family: 'Caveat', cursive; font-weight: 700; font-size: 1.6rem; margin-bottom: 26px; }
+  /* Oferta */
+  .offer { background: var(--band-bg); color: var(--band-fg); border: 2px solid var(--line); border-radius: var(--radius); box-shadow: 10px 10px 0 var(--line); padding: clamp(32px, 7vw, 76px) 20px; text-align: center; }
+  .offer h2 { font-size: clamp(2.2rem, 6vw, 4rem); letter-spacing: -.03em; }
+  .stack { list-style: none; padding: 0; margin: 16px 0 6px; display: inline-grid; gap: 6px; text-align: left; font-weight: 700; }
+  .stack li::before { content: "✓  "; }
+  .big { font-family: var(--font-display); font-weight: 800; font-size: clamp(3.6rem, 12vw, 7rem); letter-spacing: -.04em; line-height: 1; margin: 14px 0 6px; }
+  .coffee { font-family: var(--font-hand); font-weight: 700; font-size: 1.7rem; margin-bottom: 26px; }
+  .offer .btn { background: var(--band-fg); color: var(--band-bg); box-shadow: 4px 4px 0 var(--green); }
+  .offer .btn:hover { box-shadow: 6px 6px 0 var(--green); }
+  .offer .btn .arrow { background: var(--green); color: var(--green-fg); }
 
   /* FAQ */
-  .faq h2 { text-align: center; margin-bottom: 36px; }
-  .faq details { background: #fff; border: 2px solid var(--ink); border-radius: 18px; margin-bottom: 14px; box-shadow: 4px 4px 0 var(--ink); }
+  .faq { max-width: 760px; margin-inline: auto; }
+  .faq details { background: var(--surface); border: 2px solid var(--line); border-radius: 18px; margin-bottom: 14px; box-shadow: 4px 4px 0 var(--line); }
   .faq summary { cursor: pointer; list-style: none; padding: 18px 22px; font-weight: 700; display: flex; justify-content: space-between; gap: 16px; align-items: center; }
   .faq summary::-webkit-details-marker { display: none; }
-  .faq summary::after { content: "+"; flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--pink); display: grid; place-items: center; font-weight: 800; transition: transform .2s; }
+  .faq summary::after { content: "+"; flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--hl-bg); color: var(--hl-fg); display: grid; place-items: center; font-weight: 800; transition: transform .2s; }
   .faq details[open] summary::after { transform: rotate(45deg); }
-  .faq details p { padding: 0 22px 20px; }
+  .faq details p { padding: 0 22px 20px; color: var(--muted); }
 
-  footer { background: var(--ink); color: #fff; text-align: center; padding: 30px 16px; font-size: .85rem; opacity: .95; }
-  footer b { color: var(--pink); }
+  footer { background: var(--green); color: var(--green-fg); text-align: center; padding: 28px 16px; font-size: .85rem; }
+  footer b { color: var(--spark); }
 
   @media (max-width: 800px) {
-    .hero-grid, .for, .teacher { grid-template-columns: 1fr; }
-    .avatar { max-width: 220px; font-size: 4rem; }
-    .hero-art { width: 100%; max-width: 340px; margin: 20px auto 0; }
+    .hero-grid, .pain, .for, .teacher { grid-template-columns: 1fr; }
     .cards { grid-template-columns: 1fr; }
-    .pad { padding: 64px 0; }
-    .sticker.s1 { left: -2%; } .sticker.s2 { right: -2%; }
+    .pad { padding-block: 64px; }
+    .hero { padding-block: 48px 72px; }
+    .hero-art { max-width: 340px; }
+    .s1 { left: -2%; } .s2 { right: -2%; }
+    .avatar { max-width: 220px; font-size: 3.6rem; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .marquee-track, .hero-art .rec i { animation: none; }
+    .track, .rec i { animation: none; }
     html { scroll-behavior: auto; }
+    .btn, .flow button { transition: none; }
   }
 </style>
 </head>
 <body>
 
-<!-- HERO -->
+
 <header class="hero">
-  <span class="star" style="top:30px; right:6%;">✸</span>
+  <span class="star" aria-hidden="true">✸</span>
   <div class="wrap hero-grid">
     <div>
-      <span class="eyebrow">Aulão rápido · edição com Claude</span>
+      <span class="tag">Aulão rápido · edição com Claude</span>
       <h1>Gravou,<em>Postou.</em></h1>
       <p class="lead">Aulão rápido para editar seus vídeos com <span class="hl">Claude</span>, sem abrir editor e sem passar horas na timeline.</p>
-      <div class="price-tag"><strong>R$9,90</strong><small>pagamento único</small></div><br>
-      <a class="btn" href="#comprar">Quero gravar e postar <span class="arrow">→</span></a>
+      <div class="price-line"><strong>R$9,90</strong><small>pagamento único</small></div>
+      <a class="btn" href="#oferta">Quero gravar e postar <span class="arrow">→</span></a>
     </div>
     <div class="hero-art" aria-hidden="true">
-      <div class="screen">
+      <div class="phone">
         <div class="rec"><i></i> REC</div>
-        <div class="caption">você <b>grava</b>,<br>o Claude <b>edita</b></div>
+        <div class="cap">você <b>grava</b>,<br>o Claude <b>edita</b></div>
       </div>
-      <span class="sticker s1">sem timeline ✂️</span>
-      <span class="sticker s2">legenda pronta ✨</span>
+      <span class="sticker s1">sem timeline</span>
+      <span class="sticker s2">legenda pronta</span>
     </div>
   </div>
 </header>
 
 <div class="marquee" aria-hidden="true">
-  <div class="marquee-track">
-    <span>Gravou, Postou.</span><span>Sem abrir editor</span><span>Sem timeline</span><span>Você grava, ele edita</span><span>Constância sem sofrimento</span><span>Gravou, Postou.</span><span>Sem abrir editor</span><span>Sem timeline</span><span>Você grava, ele edita</span><span>Constância sem sofrimento</span>
-    <span>Gravou, Postou.</span><span>Sem abrir editor</span><span>Sem timeline</span><span>Você grava, ele edita</span><span>Constância sem sofrimento</span><span>Gravou, Postou.</span><span>Sem abrir editor</span><span>Sem timeline</span><span>Você grava, ele edita</span><span>Constância sem sofrimento</span>
+  <div class="track">
+    <span>Gravou, Postou.</span><span>Sem abrir editor</span><span>Sem timeline</span><span>Você grava, ele edita</span><span>Constância sem sofrimento</span>
+    <span>Gravou, Postou.</span><span>Sem abrir editor</span><span>Sem timeline</span><span>Você grava, ele edita</span><span>Constância sem sofrimento</span>
+    <span>Gravou, Postou.</span><span>Sem abrir editor</span><span>Sem timeline</span><span>Você grava, ele edita</span><span>Constância sem sofrimento</span>
+    <span>Gravou, Postou.</span><span>Sem abrir editor</span><span>Sem timeline</span><span>Você grava, ele edita</span><span>Constância sem sofrimento</span>
   </div>
 </div>
 
-<!-- A DOR -->
 <section class="pad">
   <div class="wrap">
     <div class="pain">
-      <h2>Você grava em <span class="hl">10 minutos</span> e passa <span class="hl">horas</span> editando.</h2>
-      <p>O vídeo fica parado no celular, o post atrasa e a constância vai embora.</p>
-      <div class="punch">Não é falta de ideia, é a edição travando a entrega.</div>
+      <div>
+        <h2>Você grava em <span class="hl">10 minutos</span> e passa <span class="hl">horas</span> editando.</h2>
+        <p class="sub">O vídeo fica parado no celular, o post atrasa e a constância vai embora.</p>
+        <div class="punch">Não é falta de ideia, é a edição travando a entrega.</div>
+      </div>
+      <div class="calc">
+        <h3>Faça a conta</h3>
+        <p class="hint">Mexa nos controles com a sua rotina.</p>
+        <div class="field">
+          <label for="vids">Vídeos por semana <output id="vidsOut">3</output></label>
+          <input id="vids" type="range" min="1" max="14" step="1" value="3">
+        </div>
+        <div class="field">
+          <label for="mins">Minutos editando cada vídeo <output id="minsOut">90</output></label>
+          <input id="mins" type="range" min="15" max="240" step="15" value="90">
+        </div>
+        <div class="result">
+          <strong id="hours">19 h</strong>
+          <span>por mês na timeline, em vez de gravando e postando.</span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- A VIRADA -->
 <section class="turn">
   <div class="wrap">
-    <h2>Edição não precisa ser uma etapa que você <span class="hl">faz</span>. Pode ser uma etapa que você <span class="hl">delega</span>.</h2>
-    <p>Neste aulão você aprende a usar o Claude como seu editor: você grava, ele edita, você posta.</p>
-    <div class="flow"><span>🎥 você grava</span><i>→</i><span>🤖 ele edita</span><i>→</i><span>🚀 você posta</span></div>
+    <div class="inner">
+      <h2>Edição não precisa ser uma etapa que você <span class="hl">faz</span>. Pode ser uma etapa que você <span class="hl">delega</span>.</h2>
+      <p>Neste aulão você aprende a usar o Claude como seu editor: você grava, ele edita, você posta.</p>
+      <div class="flow" role="group" aria-label="Etapas do processo">
+        <button type="button" data-step="0" aria-pressed="true">você grava</button><i aria-hidden="true">→</i>
+        <button type="button" data-step="1" aria-pressed="false">ele edita</button><i aria-hidden="true">→</i>
+        <button type="button" data-step="2" aria-pressed="false">você posta</button>
+      </div>
+      <p class="flow-note" id="flowNote" aria-live="polite">Dez minutos de câmera, sem se preocupar com o que vem depois.</p>
+    </div>
   </div>
 </section>
 
-<!-- O QUE VOCÊ RECEBE -->
 <section class="pad">
   <div class="wrap">
-    <div class="recebe-head">
+    <div class="head">
       <span class="hand">dá uma olhada no que vem dentro</span>
-      <h2>O que você <span class="hl">recebe</span></h2>
+      <h2 class="title">O que você <span class="hl">recebe</span></h2>
     </div>
     <div class="cards">
       <article class="card">
-        <span class="num">1</span>
         <h3>Skill de edição</h3>
         <p>O que faz o trabalho por você, pronta pra instalar.</p>
         <ul><li>Cortes</li><li>Silêncios</li><li>Legendas</li><li>Formatos</li></ul>
       </article>
-      <article class="card">
-        <span class="num">2</span>
+      <article class="card alt">
         <h3>Aula passo a passo</h3>
         <p>Do primeiro vídeo ao vídeo editado, sem pular etapa.</p>
-        <span class="meta">⏱ [duração]</span>
+        <span class="meta">[duração]</span>
       </article>
-      <article class="card">
-        <span class="num">3</span>
+      <article class="card alt">
         <h3>Apostila com passo a passo</h3>
         <p>Pra consultar sempre que travar.</p>
       </article>
       <article class="card">
-        <span class="num">4</span>
         <h3>Pack de referências de edição</h3>
         <p>Pra você saber o que pedir e ter por onde começar.</p>
       </article>
@@ -258,7 +325,6 @@
   </div>
 </section>
 
-<!-- PRA QUEM É -->
 <section class="pad" style="padding-top:0">
   <div class="wrap">
     <div class="for">
@@ -272,7 +338,6 @@
   </div>
 </section>
 
-<!-- QUEM ENSINA -->
 <section class="pad" style="padding-top:0">
   <div class="wrap teacher">
     <div class="avatar" aria-hidden="true">NA</div>
@@ -285,30 +350,56 @@
   </div>
 </section>
 
-<!-- OFERTA -->
-<section class="cta" id="comprar">
+<section class="pad" style="padding-top:0" id="oferta">
   <div class="wrap">
-    <div class="box">
+    <div class="offer">
       <h2>Gravou, Postou.</h2>
       <ul class="stack"><li>Skill de edição</li><li>Aula passo a passo</li><li>Apostila</li><li>Pack de referências</li></ul>
-      <div class="price-big">R$9,90</div>
+      <div class="big">R$9,90</div>
       <p class="coffee">Menos que um café com pão de queijo.</p>
-      <a class="btn" href="#">Quero gravar e postar <span class="arrow">→</span></a>
+      <a class="btn" href="#oferta">Quero gravar e postar <span class="arrow">→</span></a>
     </div>
   </div>
 </section>
 
-<!-- FAQ -->
-<section class="pad faq" style="padding-top:0">
-  <div class="wrap" style="max-width:760px">
-    <h2>Perguntas <span class="hl">frequentes</span></h2>
-    <details><summary>Preciso saber editar?</summary><p>Não. O aulão é do zero.</p></details>
-    <details><summary>Preciso de plano pago no Claude?</summary><p>Sim, no mínimo o Claude Pro, de US$ 20.</p></details>
-    <details><summary>Por quanto tempo tenho acesso?</summary><p>Vitalício.</p></details>
+<section class="pad" style="padding-top:0">
+  <div class="wrap">
+    <div class="head"><h2 class="title">Perguntas <span class="hl">frequentes</span></h2></div>
+    <div class="faq">
+      <details open><summary>Preciso saber editar?</summary><p>Não. O aulão é do zero.</p></details>
+      <details><summary>Preciso de plano pago no Claude?</summary><p>Sim, no mínimo o Claude Pro, de US$ 20.</p></details>
+      <details><summary>Por quanto tempo tenho acesso?</summary><p>Vitalício.</p></details>
+    </div>
   </div>
 </section>
 
 <footer><b>Gravou, Postou.</b> · Aulão de edição com Claude</footer>
+
+<script>
+  (function () {
+    var vids = document.getElementById('vids'), mins = document.getElementById('mins');
+    function calc() {
+      document.getElementById('vidsOut').textContent = vids.value;
+      document.getElementById('minsOut').textContent = mins.value;
+      var h = Math.round(vids.value * mins.value * 4.3 / 60);
+      document.getElementById('hours').textContent = h + ' h';
+    }
+    vids.addEventListener('input', calc); mins.addEventListener('input', calc); calc();
+
+    var notes = [
+      'Dez minutos de câmera, sem se preocupar com o que vem depois.',
+      'Cortes, silêncios, legendas e formato: o Claude cuida, você não abre timeline.',
+      'O vídeo sai pronto e você posta no mesmo dia. A constância volta.'
+    ];
+    var btns = document.querySelectorAll('.flow button'), note = document.getElementById('flowNote');
+    btns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        btns.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        note.textContent = notes[+b.dataset.step];
+      });
+    });
+  })();
+</script>
 
 </body>
 </html>
