@@ -133,11 +133,35 @@
   .cta .price-big { font-size: clamp(3.5rem, 11vw, 7rem); font-weight: 800; letter-spacing: -.04em; line-height: 1; margin: 18px 0 8px; }
   .cta p { margin-bottom: 28px; font-weight: 500; }
 
+
+  /* Quem ensina */
+  .teacher { display: grid; grid-template-columns: .7fr 1.3fr; gap: 40px; align-items: center; }
+  .avatar { aspect-ratio: 4/5; background: var(--pink); border: 2px solid var(--ink); border-radius: var(--radius); box-shadow: 8px 8px 0 var(--ink); display: grid; place-items: center; transform: rotate(-2deg); font-size: 5rem; font-weight: 800; color: #fff; letter-spacing: -.04em; }
+  .teacher .hand { color: var(--pink-deep); font-size: 1.6rem; display: block; }
+  .teacher h2 { margin: 4px 0 14px; }
+  .teacher p { font-size: 1.1rem; }
+  .teacher .proof { margin-top: 16px; background: var(--pink-soft); border-left: 5px solid var(--pink); border-radius: 0 14px 14px 0; padding: 14px 18px; font-weight: 500; }
+
+  /* Oferta extras */
+  .stack { list-style: none; display: inline-grid; gap: 8px; text-align: left; margin: 6px 0 22px; font-weight: 600; }
+  .stack li::before { content: "✓ "; font-weight: 800; }
+  .coffee { font-family: 'Caveat', cursive; font-weight: 700; font-size: 1.6rem; margin-bottom: 26px; }
+
+  /* FAQ */
+  .faq h2 { text-align: center; margin-bottom: 36px; }
+  .faq details { background: #fff; border: 2px solid var(--ink); border-radius: 18px; margin-bottom: 14px; box-shadow: 4px 4px 0 var(--ink); }
+  .faq summary { cursor: pointer; list-style: none; padding: 18px 22px; font-weight: 700; display: flex; justify-content: space-between; gap: 16px; align-items: center; }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after { content: "+"; flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--pink); display: grid; place-items: center; font-weight: 800; transition: transform .2s; }
+  .faq details[open] summary::after { transform: rotate(45deg); }
+  .faq details p { padding: 0 22px 20px; }
+
   footer { background: var(--ink); color: #fff; text-align: center; padding: 30px 16px; font-size: .85rem; opacity: .95; }
   footer b { color: var(--pink); }
 
   @media (max-width: 800px) {
-    .hero-grid, .for { grid-template-columns: 1fr; }
+    .hero-grid, .for, .teacher { grid-template-columns: 1fr; }
+    .avatar { max-width: 220px; font-size: 4rem; }
     .hero-art { width: 100%; max-width: 340px; margin: 20px auto 0; }
     .cards { grid-template-columns: 1fr; }
     .pad { padding: 64px 0; }
@@ -248,15 +272,39 @@
   </div>
 </section>
 
-<!-- CTA FINAL -->
+<!-- QUEM ENSINA -->
+<section class="pad" style="padding-top:0">
+  <div class="wrap teacher">
+    <div class="avatar" aria-hidden="true">NA</div>
+    <div>
+      <span class="hand">quem ensina</span>
+      <h2>Nicole Antunes</h2>
+      <p>Estrategista de negócios com IA aplicada.</p>
+      <p class="proof">[1 linha de prova: confirmar o que é verdade]</p>
+    </div>
+  </div>
+</section>
+
+<!-- OFERTA -->
 <section class="cta" id="comprar">
   <div class="wrap">
     <div class="box">
       <h2>Gravou, Postou.</h2>
+      <ul class="stack"><li>Skill de edição</li><li>Aula passo a passo</li><li>Apostila</li><li>Pack de referências</li></ul>
       <div class="price-big">R$9,90</div>
-      <p>Aulão + skill + apostila + pack de referências.</p>
+      <p class="coffee">Menos que um café com pão de queijo.</p>
       <a class="btn" href="#">Quero gravar e postar <span class="arrow">→</span></a>
     </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="pad faq" style="padding-top:0">
+  <div class="wrap" style="max-width:760px">
+    <h2>Perguntas <span class="hl">frequentes</span></h2>
+    <details><summary>Preciso saber editar?</summary><p>Não. O aulão é do zero.</p></details>
+    <details><summary>Preciso de plano pago no Claude?</summary><p>Sim, no mínimo o Claude Pro, de US$ 20.</p></details>
+    <details><summary>Por quanto tempo tenho acesso?</summary><p>Vitalício.</p></details>
   </div>
 </section>
 
