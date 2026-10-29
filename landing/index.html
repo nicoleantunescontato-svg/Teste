@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gravou, Postou. — Aulão de edição com Claude</title>
+<meta name="description" content="Aulão rápido para editar seus vídeos com Claude, sem abrir editor e sem passar horas na timeline.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pink: #e85bc0;
+    --pink-soft: #fbe3f4;
+    --pink-deep: #c93aa0;
+    --lilac: #b79cff;
+    --ink: #141214;
+    --paper: #fff7fc;
+    --radius: 28px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; overflow-x: clip; }
+  body {
+    font-family: 'Poppins', system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    line-height: 1.5;
+    overflow-x: clip;
+  }
+  .wrap { width: min(1080px, 100% - 32px); margin-inline: auto; }
+  .hand { font-family: 'Caveat', cursive; font-weight: 700; }
+  .hl { background: var(--pink); color: #fff; padding: 0 .25em; border-radius: 6px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+  .hl-soft { background: var(--pink-soft); padding: 0 .25em; border-radius: 6px; }
+
+  /* Button */
+  .btn {
+    display: inline-flex; align-items: center; gap: .6em;
+    background: var(--ink); color: #fff; text-decoration: none;
+    font-weight: 700; font-size: 1rem;
+    padding: 1em 1.6em; border-radius: 999px;
+    border: 2px solid var(--ink);
+    box-shadow: 4px 4px 0 var(--pink);
+    transition: transform .15s, box-shadow .15s;
+  }
+  .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--pink); }
+  .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--pink); }
+  .btn .arrow { background: var(--pink); color: var(--ink); width: 1.7em; height: 1.7em; border-radius: 50%; display: grid; place-items: center; font-size: .9em; }
+  .btn.on-dark { background: var(--pink); color: var(--ink); border-color: var(--pink); box-shadow: 4px 4px 0 #fff; }
+  .btn.on-dark .arrow { background: var(--ink); color: #fff; }
+  .btn.on-dark:hover { box-shadow: 6px 6px 0 #fff; }
+
+  /* Marquee */
+  .marquee { background: var(--ink); color: #fff; overflow: hidden; transform: rotate(-1.2deg); margin: -6px -10px; position: relative; z-index: 3; }
+  .marquee-track { display: flex; width: max-content; animation: slide 28s linear infinite; }
+  .marquee span { font-weight: 600; font-size: .85rem; padding: .85em 1.6em; white-space: nowrap; }
+  .marquee span::after { content: "✦"; color: var(--pink); margin-left: 3.2em; }
+  @keyframes slide { to { transform: translateX(-50%); } }
+
+  /* Hero */
+  .hero { padding: 72px 0 90px; position: relative; overflow: hidden; background: radial-gradient(circle at 80% 20%, var(--pink-soft), transparent 55%); }
+  .hero-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: center; }
+  .eyebrow { display: inline-block; background: var(--ink); color: #fff; font-size: .8rem; font-weight: 600; padding: .45em 1em; border-radius: 999px; margin-bottom: 20px; transform: rotate(-2deg); }
+  h1 { font-size: clamp(3rem, 9vw, 6rem); line-height: .95; font-weight: 800; letter-spacing: -.03em; }
+  h1 em { font-style: normal; display: block; color: var(--pink); }
+  .hero p.lead { font-size: 1.2rem; max-width: 30em; margin: 24px 0 28px; }
+  .price-tag { display: inline-flex; align-items: baseline; gap: .4em; margin-bottom: 26px; }
+  .price-tag strong { font-size: 3rem; font-weight: 800; letter-spacing: -.03em; }
+  .price-tag small { font-size: .95rem; opacity: .7; }
+  .hero-art { position: relative; aspect-ratio: 4/5; background: var(--pink); border-radius: var(--radius); display: grid; place-items: center; transform: rotate(2deg); box-shadow: 10px 10px 0 var(--ink); }
+  .hero-art .screen { width: 62%; aspect-ratio: 9/16; background: var(--ink); border-radius: 22px; border: 6px solid #fff; position: relative; overflow: hidden; transform: rotate(-3deg); }
+  .hero-art .screen::before { content: ""; position: absolute; inset: 0; background: linear-gradient(160deg, #2a2230, #141214); }
+  .hero-art .rec { position: absolute; top: 14px; left: 14px; z-index: 1; display: flex; align-items: center; gap: 6px; color: #fff; font-size: .7rem; font-weight: 700; }
+  .hero-art .rec i { width: 9px; height: 9px; border-radius: 50%; background: #ff4d6d; animation: blink 1.2s infinite; }
+  @keyframes blink { 50% { opacity: .2; } }
+  .hero-art .caption { position: absolute; bottom: 18%; left: 8%; right: 8%; z-index: 1; text-align: center; color: #fff; font-weight: 800; font-size: 1.05rem; line-height: 1.2; }
+  .hero-art .caption b { background: var(--pink); padding: 0 .25em; border-radius: 4px; }
+  .sticker { position: absolute; background: #fff; border: 2px solid var(--ink); border-radius: 14px; padding: .5em .9em; font-weight: 700; font-size: .85rem; box-shadow: 3px 3px 0 var(--ink); }
+  .sticker.s1 { top: 8%; left: -8%; transform: rotate(-6deg); }
+  .sticker.s2 { bottom: 10%; right: -6%; transform: rotate(5deg); background: var(--lilac); }
+
+  .star { position: absolute; color: var(--pink); font-size: 5rem; line-height: 1; pointer-events: none; }
+
+  /* Sections */
+  section { position: relative; }
+  .pad { padding: 90px 0; }
+  h2 { font-size: clamp(1.8rem, 4.5vw, 2.8rem); line-height: 1.1; font-weight: 800; letter-spacing: -.02em; }
+
+  /* Pain */
+  .pain { background: var(--ink); color: #fff; border-radius: var(--radius); padding: clamp(32px, 6vw, 72px); position: relative; overflow: hidden; }
+  .pain::after { content: "✸"; position: absolute; right: -30px; top: -40px; font-size: 14rem; color: var(--pink); opacity: .9; line-height: 1; }
+  .pain h2 { max-width: 14em; position: relative; z-index: 1; }
+  .pain p { margin-top: 20px; max-width: 32em; font-size: 1.15rem; opacity: .85; position: relative; z-index: 1; }
+  .pain .punch { margin-top: 32px; display: inline-block; position: relative; z-index: 1; background: var(--pink); color: var(--ink); font-weight: 700; padding: .7em 1.2em; border-radius: 14px; transform: rotate(-1.5deg); }
+
+  /* Virada */
+  .turn { background: var(--pink); position: relative; padding: 110px 0; margin-top: 60px; }
+  .turn::before, .turn::after { content: ""; position: absolute; left: 0; right: 0; height: 26px; background: var(--pink); }
+  .turn::before { top: -25px; clip-path: polygon(0 100%, 3% 30%, 7% 80%, 12% 20%, 17% 75%, 23% 25%, 28% 85%, 34% 30%, 40% 80%, 46% 15%, 52% 75%, 58% 30%, 64% 85%, 70% 20%, 76% 80%, 82% 25%, 88% 80%, 94% 20%, 100% 70%, 100% 100%); }
+  .turn::after { bottom: -25px; clip-path: polygon(0 0, 100% 0, 100% 30%, 95% 80%, 90% 25%, 84% 75%, 78% 20%, 72% 80%, 66% 30%, 60% 85%, 54% 25%, 48% 80%, 42% 20%, 36% 75%, 30% 25%, 24% 80%, 18% 30%, 12% 85%, 6% 25%, 0 75%); }
+  .turn .wrap { text-align: center; max-width: 820px; }
+  .turn h2 { color: var(--ink); font-size: clamp(1.7rem, 4.2vw, 2.6rem); }
+  .turn h2 .hl { background: var(--ink); }
+  .turn p { margin-top: 26px; font-size: 1.25rem; font-weight: 500; }
+  .flow { margin-top: 36px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; align-items: center; }
+  .flow span { background: #fff; border: 2px solid var(--ink); border-radius: 999px; padding: .55em 1.3em; font-weight: 800; box-shadow: 3px 3px 0 var(--ink); }
+  .flow i { font-style: normal; font-weight: 800; font-size: 1.4rem; }
+
+  /* Recebe */
+  .recebe-head { text-align: center; margin-bottom: 50px; }
+  .recebe-head .hand { color: var(--pink-deep); font-size: 1.6rem; display: block; margin-bottom: 6px; }
+  .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+  .card { background: #fff; border: 2px solid var(--ink); border-radius: var(--radius); padding: 30px; box-shadow: 6px 6px 0 var(--ink); position: relative; }
+  .card:nth-child(2) { background: var(--pink-soft); }
+  .card:nth-child(3) { background: var(--pink-soft); }
+  .card .num { position: absolute; top: -16px; left: 24px; background: var(--pink); color: #fff; font-weight: 800; border: 2px solid var(--ink); border-radius: 999px; width: 40px; height: 40px; display: grid; place-items: center; }
+  .card h3 { font-size: 1.3rem; line-height: 1.2; margin: 6px 0 10px; font-weight: 800; }
+  .card p { opacity: .85; }
+  .card ul { margin-top: 14px; list-style: none; display: flex; flex-wrap: wrap; gap: 8px; }
+  .card li { background: var(--ink); color: #fff; font-size: .8rem; font-weight: 600; padding: .35em .9em; border-radius: 999px; }
+  .card .meta { margin-top: 14px; display: inline-block; font-size: .85rem; font-weight: 700; color: var(--pink-deep); }
+
+  /* Pra quem */
+  .for { background: var(--ink); color: #fff; border-radius: var(--radius); padding: clamp(32px, 6vw, 64px); display: grid; grid-template-columns: .9fr 1.1fr; gap: 40px; align-items: center; }
+  .for h2 span { color: var(--pink); }
+  .for ul { list-style: none; display: grid; gap: 14px; }
+  .for li { display: flex; gap: 14px; align-items: flex-start; background: rgba(255,255,255,.07); border-radius: 18px; padding: 18px 20px; font-size: 1.05rem; }
+  .for li::before { content: "✓"; flex: none; width: 28px; height: 28px; border-radius: 50%; background: var(--pink); color: var(--ink); font-weight: 800; display: grid; place-items: center; }
+
+  /* CTA final */
+  .cta { text-align: center; padding: 90px 0 110px; }
+  .cta .box { background: var(--pink); border: 2px solid var(--ink); border-radius: var(--radius); padding: clamp(36px, 7vw, 80px) 24px; box-shadow: 10px 10px 0 var(--ink); }
+  .cta h2 { font-size: clamp(2.2rem, 6vw, 4rem); }
+  .cta .price-big { font-size: clamp(3.5rem, 11vw, 7rem); font-weight: 800; letter-spacing: -.04em; line-height: 1; margin: 18px 0 8px; }
+  .cta p { margin-bottom: 28px; font-weight: 500; }
+
+  footer { background: var(--ink); color: #fff; text-align: center; padding: 30px 16px; font-size: .85rem; opacity: .95; }
+  footer b { color: var(--pink); }
+
+  @media (max-width: 800px) {
+    .hero-grid, .for { grid-template-columns: 1fr; }
+    .hero-art { width: 100%; max-width: 340px; margin: 20px auto 0; }
+    .cards { grid-template-columns: 1fr; }
+    .pad { padding: 64px 0; }
+    .sticker.s1 { left: -2%; } .sticker.s2 { right: -2%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track, .hero-art .rec i { animation: none; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<header class="hero">
+  <span class="star" style="top:30px; right:6%;">✸</span>
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Aulão rápido · edição com Claude</span>
+      <h1>Gravou,<em>Postou.</em></h1>
+      <p class="lead">Aulão rápido para editar seus vídeos com <span class="hl">Claude</span>, sem abrir editor e sem passar horas na timeline.</p>
+      <div class="price-tag"><strong>R$9,90</strong><small>pagamento único</small></div><br>
+      <a class="btn" href="#comprar">Quero gravar e postar <span class="arrow">→</span></a>
+    </div>
+    <div class="hero-art" aria-hidden="true">
+      <div class="screen">
+        <div class="rec"><i></i> REC</div>
+        <div class="caption">você <b>grava</b>,<br>o Claude <b>edita</b></div>
+      </div>
+      <span class="sticker s1">sem timeline ✂️</span>
+      <span class="sticker s2">legenda pronta ✨</span>
+    </div>
+  </div>
+</header>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span>Gravou, Postou.</span><span>Sem abrir editor</span><span>Sem timeline</span><span>Você grava, ele edita</span><span>Constância sem sofrimento</span><span>Gravou, Postou.</span><span>Sem abrir editor</span><span>Sem timeline</span><span>Você grava, ele edita</span><span>Constância sem sofrimento</span>
+    <span>Gravou, Postou.</span><span>Sem abrir editor</span><span>Sem timeline</span><span>Você grava, ele edita</span><span>Constância sem sofrimento</span><span>Gravou, Postou.</span><span>Sem abrir editor</span><span>Sem timeline</span><span>Você grava, ele edita</span><span>Constância sem sofrimento</span>
+  </div>
+</div>
+
+<!-- A DOR -->
+<section class="pad">
+  <div class="wrap">
+    <div class="pain">
+      <h2>Você grava em <span class="hl">10 minutos</span> e passa <span class="hl">horas</span> editando.</h2>
+      <p>O vídeo fica parado no celular, o post atrasa e a constância vai embora.</p>
+      <div class="punch">Não é falta de ideia, é a edição travando a entrega.</div>
+    </div>
+  </div>
+</section>
+
+<!-- A VIRADA -->
+<section class="turn">
+  <div class="wrap">
+    <h2>Edição não precisa ser uma etapa que você <span class="hl">faz</span>. Pode ser uma etapa que você <span class="hl">delega</span>.</h2>
+    <p>Neste aulão você aprende a usar o Claude como seu editor: você grava, ele edita, você posta.</p>
+    <div class="flow"><span>🎥 você grava</span><i>→</i><span>🤖 ele edita</span><i>→</i><span>🚀 você posta</span></div>
+  </div>
+</section>
+
+<!-- O QUE VOCÊ RECEBE -->
+<section class="pad">
+  <div class="wrap">
+    <div class="recebe-head">
+      <span class="hand">dá uma olhada no que vem dentro</span>
+      <h2>O que você <span class="hl">recebe</span></h2>
+    </div>
+    <div class="cards">
+      <article class="card">
+        <span class="num">1</span>
+        <h3>Skill de edição</h3>
+        <p>O que faz o trabalho por você, pronta pra instalar.</p>
+        <ul><li>Cortes</li><li>Silêncios</li><li>Legendas</li><li>Formatos</li></ul>
+      </article>
+      <article class="card">
+        <span class="num">2</span>
+        <h3>Aula passo a passo</h3>
+        <p>Do primeiro vídeo ao vídeo editado, sem pular etapa.</p>
+        <span class="meta">⏱ [duração]</span>
+      </article>
+      <article class="card">
+        <span class="num">3</span>
+        <h3>Apostila com passo a passo</h3>
+        <p>Pra consultar sempre que travar.</p>
+      </article>
+      <article class="card">
+        <span class="num">4</span>
+        <h3>Pack de referências de edição</h3>
+        <p>Pra você saber o que pedir e ter por onde começar.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- PRA QUEM É -->
+<section class="pad" style="padding-top:0">
+  <div class="wrap">
+    <div class="for">
+      <h2>Esse aulão é <span>pra você</span> que:</h2>
+      <ul>
+        <li>Grava vídeo e trava na hora de editar</li>
+        <li>Quer postar com mais constância</li>
+        <li>Nunca editou e não quer aprender timeline</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta" id="comprar">
+  <div class="wrap">
+    <div class="box">
+      <h2>Gravou, Postou.</h2>
+      <div class="price-big">R$9,90</div>
+      <p>Aulão + skill + apostila + pack de referências.</p>
+      <a class="btn" href="#">Quero gravar e postar <span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<footer><b>Gravou, Postou.</b> · Aulão de edição com Claude</footer>
+
+</body>
+</html>
