@@ -1,0 +1,315 @@
+<title>Mapa de Objeções</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: formulário compacto no topo, mapa em 3 colunas (macro | específica | solução) agrupado por macro. Solução trava até o lead deixar nome e e-mail. */
+:root{
+  --bg:#F4F5F2; --surface:#FFFFFF; --ink:#16201C; --muted:#5C6A64; --line:#DDE2DD;
+  --accent:#0E5A4A; --accent-ink:#FFFFFF; --accent-soft:#E2EFEA;
+  --obj:#A8412A; --obj-soft:#F7E9E4;
+  --sol:#0E5A4A; --sol-soft:#E6F1ED;
+  --focus:#1B6FD1;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Instrument Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1613; --surface:#18221E; --ink:#E8EEEA; --muted:#9AA9A2; --line:#2B3A34;
+  --accent:#5CC4A8; --accent-ink:#06201A; --accent-soft:#17332B;
+  --obj:#EE9A82; --obj-soft:#35201A; --sol:#6FD3B8; --sol-soft:#14302A; --focus:#7DB4F5; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1613; --surface:#18221E; --ink:#E8EEEA; --muted:#9AA9A2; --line:#2B3A34;
+  --accent:#5CC4A8; --accent-ink:#06201A; --accent-soft:#17332B;
+  --obj:#EE9A82; --obj-soft:#35201A; --sol:#6FD3B8; --sol-soft:#14302A; --focus:#7DB4F5; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.55;
+  padding-inline:0}
+.wrap{max-width:1120px;margin-inline:auto;padding-block:40px 72px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.1}
+.eyebrow{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+/* cabeçalho */
+header{display:grid;gap:12px;max-width:760px;margin-bottom:28px}
+h1{font-size:clamp(32px,5.2vw,52px);font-weight:700;letter-spacing:-.02em}
+header p{margin:0;color:var(--muted);font-size:17px;max-width:62ch}
+
+/* formulário */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;
+  display:grid;gap:18px;grid-template-columns:repeat(12,1fr)}
+.field{display:grid;gap:6px;min-width:0;grid-column:span 12}
+.field.half{grid-column:span 6}.field.third{grid-column:span 4}
+label{font-weight:600;font-size:13.5px}
+label small{font-weight:400;color:var(--muted)}
+input,textarea{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;
+  padding:10px 12px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:84px}
+input::placeholder,textarea::placeholder{color:var(--muted);opacity:.8}
+.actions{grid-column:span 12;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:8px;padding:12px 20px;font-weight:600}
+.btn:hover{filter:brightness(1.08)}
+.btn[disabled]{opacity:.6;cursor:progress}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);padding:8px 14px;font-weight:500;font-size:13.5px}
+.btn.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.hint{color:var(--muted);font-size:13px}
+.err{color:var(--obj);font-size:13.5px}
+
+/* resultado */
+.result-head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin:44px 0 16px}
+.result-head h2{font-size:clamp(24px,3.4vw,32px)}
+.badge{font-family:var(--f-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;
+  background:var(--accent-soft);color:var(--accent);padding:3px 8px;border-radius:5px;margin-left:8px;vertical-align:middle}
+.stats{display:flex;gap:18px;color:var(--muted);font-size:13.5px;flex-wrap:wrap}
+.stats b{color:var(--ink);font-family:var(--f-mono);font-weight:500}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 13px;font-size:13px}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+
+.cols{display:grid;grid-template-columns:200px minmax(0,1fr) minmax(0,1.35fr);gap:0 20px;
+  padding:0 20px 8px;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+
+.group{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:14px;
+  display:grid;grid-template-columns:200px minmax(0,1fr);gap:0 20px;padding:20px}
+.macro{align-self:start;position:sticky;top:env(safe-area-inset-top,0px);padding-top:2px}
+.macro h3{font-size:19px;color:var(--obj);font-weight:700}
+.macro p{margin:6px 0 0;color:var(--muted);font-size:13px}
+.rows{display:grid;min-width:0}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:20px;padding:14px 0;border-top:1px solid var(--line)}
+.row:first-child{border-top:0;padding-top:0}
+.row:last-child{padding-bottom:0}
+.spec{min-width:0}
+.spec b{display:block;font-weight:600;line-height:1.35}
+.spec q{display:block;margin-top:6px;color:var(--muted);font-size:13.5px;font-style:italic;quotes:"“" "”"}
+.sol{position:relative;min-width:0;background:var(--sol-soft);border-radius:10px;padding:12px 14px 12px;font-size:14.5px}
+.sol .copy{position:absolute;right:8px;top:8px;border:0;background:transparent;color:var(--sol);font-size:12px;
+  font-family:var(--f-mono);padding:2px 6px;border-radius:5px}
+.sol .copy:hover{background:var(--surface)}
+.sol .txt{padding-right:46px;white-space:pre-line}
+.locked .txt{filter:blur(5px);user-select:none;pointer-events:none;max-height:4.6em;overflow:hidden}
+.locked .copy{display:none}
+
+/* trava de e-mail */
+.gate{background:var(--ink);color:var(--bg);border-radius:14px;padding:22px;margin:0 0 18px;
+  display:grid;gap:14px;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr);align-items:center}
+.gate h3{font-size:22px}
+.gate p{margin:6px 0 0;opacity:.8;font-size:14px}
+.gate form{display:grid;gap:10px;grid-template-columns:1fr 1fr auto}
+.gate input{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.25);color:var(--bg)}
+.gate input::placeholder{color:var(--bg);opacity:.55}
+.gate .btn{background:var(--bg);color:var(--ink);white-space:nowrap}
+.gate .fine{grid-column:1/-1;font-size:12px;opacity:.65;margin:0}
+.welcome{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--accent-soft);color:var(--accent);
+  border-radius:10px;padding:10px 14px;margin-bottom:18px;font-weight:500}
+.welcome .btn{margin-left:auto}
+
+.loading{display:grid;gap:12px}
+.skel{height:92px;border-radius:14px;background:linear-gradient(90deg,var(--line),var(--surface),var(--line));background-size:200% 100%;animation:sh 1.3s infinite linear}
+@keyframes sh{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.skel{animation:none}}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));
+  background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:8px;font-size:13.5px;z-index:20}
+
+/* telas estreitas: as 3 colunas viram bloco empilhado */
+@media (max-width:860px){
+  .field.half,.field.third{grid-column:span 12}
+  .cols{display:none}
+  .group{grid-template-columns:1fr;gap:14px;padding:16px}
+  .macro{position:static}
+  .row{grid-template-columns:1fr;gap:10px}
+  .gate{grid-template-columns:1fr}
+  .gate form{grid-template-columns:1fr}
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Ferramenta gratuita</span>
+    <h1>Mapa de objeções para o seu serviço</h1>
+    <p>Descreva o que você vende, quanto custa e para quem. A IA lista o que o seu cliente vai pensar antes de dizer não e o que você pode responder em cada caso.</p>
+  </header>
+
+  <form class="panel" id="form" novalidate>
+    <div class="field">
+      <label for="servico">O que você vende? <small>(um ou mais serviços)</small></label>
+      <textarea id="servico" name="servico" placeholder="Ex.: Mentoria individual de carreira, 4 meses, com 8 encontros online e acompanhamento por WhatsApp.">Mentoria individual de carreira para quem quer mudar de área: 4 meses, 8 encontros online, revisão de currículo e LinkedIn, acompanhamento por WhatsApp.</textarea>
+    </div>
+    <div class="field half">
+      <label for="valores">Valores e formas de pagamento</label>
+      <input id="valores" name="valores" value="R$ 2.400 à vista ou 6x de R$ 450">
+    </div>
+    <div class="field half">
+      <label for="publico">Quem é o seu público?</label>
+      <input id="publico" name="publico" value="Profissionais de 28 a 40 anos, CLT, cansados da área atual">
+    </div>
+    <div class="field">
+      <label for="extra">Diferenciais, garantias ou contexto <small>(opcional)</small></label>
+      <input id="extra" name="extra" value="Garantia de 7 dias, método próprio, 120 alunos atendidos">
+    </div>
+    <div class="actions">
+      <button class="btn" id="go" type="submit">Mapear objeções</button>
+      <span class="hint" id="hint">O mapa abaixo é um exemplo com os dados preenchidos acima.</span>
+      <span class="err" id="err" role="alert" hidden></span>
+    </div>
+  </form>
+
+  <section id="out" aria-live="polite"></section>
+</div>
+<div id="toastHost"></div>
+
+<script>
+/* ---------- dados de exemplo (marcados como exemplo na tela) ---------- */
+const EXEMPLO = {macros:[
+ {macro:"Está caro",descricao:"O valor pesa mais do que o benefício que ele enxerga.",itens:[
+  {especifica:"Não cabe no orçamento agora",frase:"Gostei, mas esse mês não consigo investir R$ 2.400.",solucao:"Mostre o parcelamento como decisão de fluxo de caixa: 6x de R$ 450 é menos que um jantar por semana. Pergunte: “Se a parcela coubesse, você começaria?”. Se sim, o problema é pagamento e não interesse."},
+  {especifica:"Não vê retorno financeiro",frase:"Como eu sei que isso vai se pagar?",solucao:"Traga a conta do tempo: cada mês na área errada custa o aumento que ele deixa de pedir. Mostre 2 casos de alunos que mudaram de área e o salário depois. Pergunte quanto ele ganharia a mais para a mentoria se pagar em 3 meses."},
+  {especifica:"Achou algo mais barato",frase:"Vi um curso por R$ 300 sobre o mesmo tema.",solucao:"Separe conteúdo de acompanhamento: o curso entrega aulas, a mentoria entrega decisões feitas com ele. Diga: “O curso ensina o caminho. Eu caminho com você e corrijo a rota.”"}]},
+ {macro:"Não confio ainda",descricao:"Falta prova de que você entrega o que promete.",itens:[
+  {especifica:"Não conhece o seu trabalho",frase:"Nunca ouvi falar de você.",solucao:"Ofereça uma entrada pequena: uma conversa diagnóstica de 20 minutos sem custo. Mande 3 depoimentos de pessoas parecidas com ele (mesma idade e área) antes da conversa."},
+  {especifica:"Teve má experiência antes",frase:"Já paguei um curso e não saí do lugar.",solucao:"Valide primeiro: “Faz sentido desconfiar.” Pergunte o que faltou lá. Mostre como o seu processo cobre exatamente essa falha, e lembre a garantia de 7 dias."}]},
+ {macro:"Não é o momento",descricao:"Ele concorda com o valor, mas adia a decisão.",itens:[
+  {especifica:"Está sem tempo",frase:"Estou no meio de um projeto, depois eu volto.",solucao:"Mostre que são 8 encontros em 4 meses, 1h cada, em horário escolhido por ele. Ofereça começar com a primeira sessão de plano e só então fechar o ritmo."},
+  {especifica:"Quer esperar uma data",frase:"Depois do bônus de fim de ano eu vejo.",solucao:"Pergunte o que muda nessa data. Se não houver motivo concreto, mostre o custo de esperar: mais meses no mesmo cargo. Combine um prazo e um próximo passo marcado no calendário."}]},
+ {macro:"Será que funciona para mim?",descricao:"Ele duvida de que o método serve para o caso dele.",itens:[
+  {especifica:"Acha que o caso é diferente",frase:"Minha área é muito específica.",solucao:"Peça que descreva o caso em 2 frases e responda com um exemplo concreto de aluno com perfil próximo. Se não houver, diga isso com clareza e proponha a sessão diagnóstica."},
+  {especifica:"Medo de não dar conta",frase:"E se eu não conseguir seguir o plano?",solucao:"Mostre o acompanhamento por WhatsApp e as metas semanais pequenas. Reforce que o plano é ajustado quando a rotina muda."}]},
+ {macro:"Preciso consultar alguém",descricao:"A decisão não depende só dele.",itens:[
+  {especifica:"Precisa falar com o cônjuge",frase:"Vou conversar com meu marido e te falo.",solucao:"Ofereça um resumo de 1 página para mostrar em casa e pergunte quais dúvidas a outra pessoa provavelmente terá. Marque um retorno em 48h, com data e hora."}]}
+]};
+
+/* ---------- estado ---------- */
+const $ = id => document.getElementById(id);
+const store = {
+  get(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+let state = {map:EXEMPLO, isExample:true, lead:store.get("mo_lead"), filter:"todas", input:null};
+
+/* Ponto de integração: hoje guarda só no navegador.
+   Depois de aprovado o design, troque por um POST para a API (Vercel) que grava no Supabase. */
+async function saveLead(lead, contexto){
+  store.set("mo_lead", lead);
+  return true;
+}
+
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(msg){
+  const t=document.createElement("div");t.className="toast";t.textContent=msg;$("toastHost").appendChild(t);
+  setTimeout(()=>t.remove(),1800);
+}
+const unlocked = () => !!state.lead;
+
+/* ---------- renderização ---------- */
+function render(){
+  const {map,isExample,filter} = state;
+  const macros = map.macros;
+  const total = macros.reduce((n,m)=>n+m.itens.length,0);
+  const visible = filter==="todas" ? macros : macros.filter(m=>m.macro===filter);
+
+  let h = `<div class="result-head"><h2>Seu mapa${isExample?'<span class="badge">exemplo</span>':''}</h2>
+    <div class="stats"><span><b>${macros.length}</b> objeções macro</span><span><b>${total}</b> objeções específicas</span></div></div>`;
+
+  if(!unlocked()){
+    h += `<div class="gate"><div><h3>Desbloqueie as soluções</h3><p>As objeções estão abertas. Para ver o que responder em cada uma, diga quem você é e mandamos o mapa para o seu e-mail.</p></div>
+      <form id="gateForm" novalidate>
+        <input id="gName" name="nome" autocomplete="name" placeholder="Seu nome" aria-label="Seu nome">
+        <input id="gMail" name="email" type="email" autocomplete="email" placeholder="Seu melhor e-mail" aria-label="Seu e-mail">
+        <button class="btn" type="submit">Ver soluções</button>
+        <p class="fine" id="gErr" role="alert"></p>
+      </form></div>`;
+  } else {
+    h += `<div class="welcome"><span>Soluções liberadas para ${esc(state.lead.nome)}.</span>
+      <button class="btn ghost" id="copyAll" type="button">Copiar mapa inteiro</button></div>`;
+  }
+
+  h += `<div class="chips" role="group" aria-label="Filtrar por objeção macro">
+    <button class="chip" data-f="todas" aria-pressed="${filter==="todas"}">Todas</button>` +
+    macros.map(m=>`<button class="chip" data-f="${esc(m.macro)}" aria-pressed="${filter===m.macro}">${esc(m.macro)}</button>`).join("") + `</div>`;
+
+  h += `<div class="cols"><span>1 · Objeção macro</span><span style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:20px"><span>2 · Objeção específica</span><span>3 · Solução</span></span></div>`;
+
+  h += visible.map(m=>`<article class="group"><div class="macro"><h3>${esc(m.macro)}</h3><p>${esc(m.descricao)}</p></div>
+    <div class="rows">${m.itens.map(it=>`<div class="row">
+      <div class="spec"><b>${esc(it.especifica)}</b><q>${esc(it.frase)}</q></div>
+      <div class="sol${unlocked()?"":" locked"}"><button class="copy" type="button" data-copy="${esc(it.solucao)}">copiar</button><div class="txt">${esc(it.solucao)}</div></div>
+    </div>`).join("")}</div></article>`).join("");
+
+  $("out").innerHTML = h;
+}
+
+$("out").addEventListener("click", e=>{
+  const chip = e.target.closest(".chip");
+  if(chip){state.filter=chip.dataset.f;render();return}
+  const cp = e.target.closest("[data-copy]");
+  if(cp){copy(cp.dataset.copy);return}
+  if(e.target.id==="copyAll"){
+    copy(state.map.macros.map(m=>m.macro.toUpperCase()+"\n"+m.itens.map(i=>`- ${i.especifica}: ${i.solucao}`).join("\n")).join("\n\n"));
+  }
+});
+async function copy(text){
+  try{await navigator.clipboard.writeText(text);toast("Copiado")}
+  catch(e){toast("Não foi possível copiar. Selecione o texto.")}
+}
+$("out").addEventListener("submit", async e=>{
+  if(e.target.id!=="gateForm")return;
+  e.preventDefault();
+  const nome=$("gName").value.trim(), email=$("gMail").value.trim();
+  if(nome.length<2){$("gErr").textContent="Informe seu nome.";return}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){$("gErr").textContent="Informe um e-mail válido.";return}
+  const lead={nome,email,quando:new Date().toISOString()};
+  await saveLead(lead,state.input);
+  state.lead=lead;render();
+});
+
+/* ---------- geração com IA ---------- */
+function prompt(i){
+  return `Você é especialista em vendas consultivas de serviços. Gere um mapa de objeções em português do Brasil para este negócio.
+
+SERVIÇO: ${i.servico}
+VALORES: ${i.valores}
+PÚBLICO: ${i.publico}
+DIFERENCIAIS/CONTEXTO: ${i.extra||"não informado"}
+
+Regras:
+- Entre 5 e 7 objeções macro (ex.: preço, confiança, momento, necessidade/valor percebido, será que funciona para mim, decisão compartilhada, comparação com concorrente). Escolha só as que fazem sentido para ESTE serviço e público.
+- Cada macro tem de 2 a 4 objeções específicas, concretas e diferentes entre si.
+- "frase" é o que o cliente diria, em primeira pessoa, curta e natural.
+- "solucao" é o que o profissional pode fazer ou dizer: específica para este serviço, usando os valores, diferenciais e público informados, com 2 a 4 frases e, quando útil, uma pergunta ou fala pronta entre aspas. Nada genérico. Não invente números, depoimentos ou garantias que não foram informados.
+- "descricao" resume em uma frase o que está por trás da macro.
+
+Responda somente com JSON: {"macros":[{"macro":"","descricao":"","itens":[{"especifica":"","frase":"","solucao":""}]}]}`;
+}
+
+$("form").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const i={servico:$("servico").value.trim(),valores:$("valores").value.trim(),publico:$("publico").value.trim(),extra:$("extra").value.trim()};
+  const err=$("err"); err.hidden=true;
+  if(!i.servico||!i.publico){err.textContent="Preencha o serviço e o público.";err.hidden=false;return}
+  const btn=$("go"); btn.disabled=true; btn.textContent="Mapeando…"; $("hint").textContent="Isso leva cerca de 20 segundos.";
+  $("out").innerHTML=`<div class="result-head"><h2>Montando seu mapa</h2></div><div class="loading"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>`;
+  try{
+    const sample = await (window.claude?.use ? window.claude.use("sample") : null);
+    if(!sample) throw {code:"unavailable"};
+    const r = await sample.json(prompt(i),{modelTier:"default",cache:false});
+    if(!r||!Array.isArray(r.macros)||!r.macros.length) throw {code:"bad"};
+    r.macros = r.macros.filter(m=>m&&Array.isArray(m.itens)&&m.itens.length);
+    state={...state,map:r,isExample:false,filter:"todas",input:i};
+    store.set("mo_input",i);
+    $("hint").textContent="Mapa gerado para o seu serviço.";
+  }catch(x){
+    state.map=EXEMPLO; state.isExample=true; state.filter="todas";
+    err.textContent = x&&x.code==="not_granted" ? "A geração com IA não foi autorizada. Mostrando o exemplo."
+      : x&&x.code==="rate_limited" ? "Muitas tentativas seguidas. Espere um instante e tente de novo."
+      : "Não foi possível gerar agora. Tente de novo. Enquanto isso, veja o exemplo.";
+    err.hidden=false; $("hint").textContent="";
+  }
+  btn.disabled=false; btn.textContent="Mapear objeções";
+  render();
+});
+
+render();
+</script>
