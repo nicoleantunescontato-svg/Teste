@@ -5,22 +5,24 @@ description: Notícias cortando numa palavra e travada no lugar. Use quando o us
 
 # /corte-na-palavra
 
-Efeito: a fala cita um nome ou termo (ex.: "Claude"). A tela corta para um recorte de notícia em serifa, desfocado, e a câmera "trava" na palavra, que ganha uma tarja vermelha sólida com texto branco serifado grande.
+Efeito: a fala cita um nome ou termo (ex.: "Claude"). A tela faz **cortes rápidos (a cada ~6 frames) entre trechos de notícias diferentes**, em fontes diferentes (máquina de escrever `Courier New` e serifada `Georgia`). A palavra fica numa **tarja vermelha sempre no mesmo lugar, no centro**, enquanto o texto ao redor muda a cada corte. A página vai dando zoom (1 para 1.3), as linhas de cima e de baixo ficam desfocadas (mais quanto mais longe do centro) e o foco fica na linha da palavra.
 
 ## Entradas
 - Vídeo falado em `public/` e a palavra-alvo (pergunte se não vier).
-- Legenda com timestamps por palavra (`node sub.mjs <video>` gera o JSON via Whisper).
+- Legenda com timestamps por palavra (`node sub.mjs <video>`) para achar o `startMs` da palavra.
 
 ## Passos
-1. Ache na legenda o `startMs`/`endMs` da palavra-alvo. O efeito dura de 0,6 s a 1,2 s, começando 2 a 4 frames antes da palavra.
-2. Crie `src/Effects/CorteNaPalavra.tsx` com `<Sequence from={frame} durationInFrames={dur}>` sobre o vídeo.
-3. Fundo: parágrafo de texto de notícia (3 a 4 manchetes/linhas, fonte serifada tipo `Playfair Display` ou `Georgia`, cor `#2a2a2a`, fundo papel `#efe6d6`). Aplique `filter: blur(6px)` e escala 1.15.
-4. Animação (use `spring`/`interpolate`):
-   - 0 a 6 frames: corte seco, texto de fundo com leve tremor horizontal (`translateX` ±8 px) e blur caindo de 12 px para 6 px.
-   - Frame 6 em diante: a palavra-alvo entra na tarja com `scale` 1.25 para 1 (spring rápido, damping 14) e fica travada.
-   - Tarja: fundo `#c0392b`, texto `#fff` serifado bold ~200 px, `padding: 0 36px`, leve rotação -1°, sombra `0 8px 0 rgba(0,0,0,.25)`.
-5. Saída do efeito: fade de 4 frames de volta ao vídeo. O áudio original NÃO é cortado. Opcional: SFX curto de "whoosh" no início e "thud" na trava.
-6. Valide com `npx remotion still` num frame do meio e renderize com `npx remotion render`.
+1. Ache o início da palavra na legenda. O efeito dura ~60 frames (2 s a 30 fps), começando ~2 frames antes dela.
+2. Use `src/Effects/CorteNaPalavra.tsx` (já implementado). Props: `word`. Edite `SNIPPETS` para trocar os trechos ao redor. Cada um tem `font`, `above` (3 linhas), `before`, `after` e `below` (3 linhas), com as linhas cortadas pela borda.
+3. Estrutura:
+   - Frames 0 a 3: introdução com trama de pontos (halftone) e a tarja ainda pequena.
+   - A cada 6 frames: troca para o próximo trecho; a tarja dá um pop (`spring`) e gira ±0.8°.
+   - Página inteira com `scale` de 1 a 1.3 ao longo da duração.
+   - Últimos 4 frames: fade de volta ao vídeo.
+4. Tarja: fundo `#c0392b`, texto branco 220 px, `padding: 0 36px`, sombra `0 10px 0 rgba(0,0,0,.28)`. Posicione `before` e `after` de forma absoluta nos lados da tarja, para ela nunca se mover.
+5. Fundo: papel `radial-gradient(#f7f3ea, #dcd4c1)`; linhas de cima/baixo com `blur(dist * 4px)`.
+6. Use `<Sequence from={frame} durationInFrames={60}>` sobre o vídeo, sem cortar o áudio. Opcional: SFX de whoosh no início.
+7. Valide com `npx remotion render CorteNaPalavra` (composição de teste em `Root.tsx`).
 
 ## Dicas
 - Se a palavra for longa, reduza o `fontSize` com `fitText` de `@remotion/layout-utils`.

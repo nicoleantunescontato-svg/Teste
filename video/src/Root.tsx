@@ -1,5 +1,6 @@
 import { Composition, staticFile } from "remotion";
 import { Showcase } from "./Effects/Showcase";
+import { CorteNaPalavra } from "./Effects/CorteNaPalavra";
 import {
   CaptionedVideo,
   calculateCaptionedVideoMetadata,
@@ -11,6 +12,15 @@ import {
 export const RemotionRoot: React.FC = () => {
   return (
     <>
+      <Composition
+        id="CorteNaPalavra"
+        component={CorteNaPalavra}
+        defaultProps={{ word: "Claude" }}
+        width={1080}
+        height={1920}
+        fps={30}
+        durationInFrames={60}
+      />
       <Composition
         id="EffectsShowcase"
         component={Showcase}
