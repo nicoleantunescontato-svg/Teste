@@ -236,7 +236,7 @@ function seedProfile(kind){
   return tx;
 }
 function seedAll(){
-  return {name:'',active:'pro',profiles:[
+  return {name:'',sample:true,active:'pro',profiles:[
     {id:'pro',name:'Profissional',emoji:'🏢',saldo:0,meta:5000,limits:{'Marketing':400},tx:seedProfile('pro')},
     {id:'pes',name:'Pessoal',emoji:'⭐',saldo:800,meta:4500,limits:{'Lazer':250},tx:seedProfile('pes')}]};
 }
@@ -363,6 +363,7 @@ function render(){
       ${S.menu?`<div class="pmenu" role="menu">${S.data.profiles.map(q=>`<button class="${q.id===p.id?'on':''}" data-act="profile" data-id="${q.id}"><span>${q.emoji}</span><span style="flex:1">${esc(q.name)}</span>${q.id===p.id?'✓':''}</button>`).join('')}<hr><button data-act="newprofile">＋ Novo perfil financeiro</button><button data-act="manage">⚙ Gerenciar perfis financeiros</button></div>`:''}
     </div>
     <span class="saved">Salvo</span>
+    ${S.data.sample?`<span class="note">Os números abaixo são exemplos.</span><button class="btn sm ${S.confirmBlank?'pink':''}" data-act="blank">${S.confirmBlank?'Clique de novo para apagar os exemplos':'Começar do zero com meus números'}</button>`:''}
   </div>
   <div class="tip"><span class="tag">DICA</span><div class="msg"><b>Tudo salvo automaticamente${S.data.name?', '+esc(S.data.name):''}!</b><small>Só lançamentos marcados como Pagos entram no saldo da sua conta.</small></div><button class="btn sm" data-act="summary">Copiar resumo do mês</button><button class="btn sm" data-act="import">Importar fatura ou extrato</button></div>
   <div class="filters">
@@ -547,6 +548,9 @@ document.addEventListener('click',e=>{
     case 'manage':S.menu=false;render();manageModal();break;
     case 'emoji':M.emoji=el.dataset.v;document.querySelectorAll('.emojis button').forEach(b=>b.classList.toggle('on',b===el));break;
     case 'delprofile':{if(S.data.profiles.length<2)break;S.data.profiles=S.data.profiles.filter(q=>q.id!==id);if(S.data.active===id)S.data.active=S.data.profiles[0].id;save();render();manageModal();break}
+    case 'blank':{if(!S.confirmBlank){S.confirmBlank=true;render();setTimeout(()=>{S.confirmBlank=false;render()},5000);break}
+      S.confirmBlank=false;S.data={name:S.data.name,sample:false,active:'pro',profiles:[{id:'pro',name:'Profissional',emoji:'🏢',saldo:0,meta:0,limits:{},tx:[]},{id:'pes',name:'Pessoal',emoji:'⭐',saldo:0,meta:0,limits:{},tx:[]}]};
+      S.tab='in';save();render();toast('Tudo limpo. Comece em + Novo lançamento ou importe um extrato.');break}
     case 'reset':S.data=seedAll();save();modal('');render();toast('Dados de exemplo restaurados');break;
     case 'prev':case 'next':{const k=a==='prev'?-1:1;if(S.mode==='a')S.y+=k;else{const d=new Date(S.y,S.m+k,1);S.y=d.getFullYear();S.m=d.getMonth()}render();break}
     case 'mode':S.mode=el.dataset.v;render();break;
