@@ -4,24 +4,24 @@
 <style>
 /* Layout: cabeçalho com perfil, faixa de dica, filtros, KPIs, grade de gráficos 2/1, abas com tabelas. Identidade: magenta sobre lilás suave. */
 :root{
-  --bg:#f3f0f6; --surface:#ffffff; --surface2:#faf8fc; --line:#e6e0ee; --fg:#231a2e; --muted:#6f6480;
-  --accent:#c0267e; --accent-d:#9c1d65; --accent-soft:#fbe4f0; --on-accent:#ffffff;
+  --bg:#f5efe6; --surface:#fffcf8; --surface2:#faf4eb; --line:#e7dac9; --fg:#2e241b; --muted:#7a6958;
+  --accent:#96704e; --accent-d:#7a5a3c; --accent-soft:#efe1d0; --on-accent:#ffffff;
   --green:#1f8f5b; --green-soft:#dff3e8; --red:#d0414c; --red-soft:#fbe3e5; --blue:#3a5bd9; --blue-soft:#e3e9fc; --amber:#d98414; --amber-soft:#fcefd9; --violet:#6d4fc2; --violet-soft:#ece6fa;
-  --c1:#1f8f5b; --c2:#d0414c; --c3:#3a5bd9; --c4:#e08a12; --c5:#7a55d1; --c6:#1d9aa6; --c7:#c0267e; --c8:#8a8196;
-  --shadow:0 1px 2px rgba(60,30,80,.06),0 6px 20px rgba(60,30,80,.06);
+  --c1:#1f8f5b; --c2:#d0414c; --c3:#3a5bd9; --c4:#e08a12; --c5:#7a55d1; --c6:#1d9aa6; --c7:#96704e; --c8:#8c8174;
+  --shadow:0 1px 2px rgba(80,55,30,.07),0 6px 20px rgba(80,55,30,.07);
   --font:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#17121d; --surface:#211a29; --surface2:#2a2133; --line:#3a2f47; --fg:#f2ecf7; --muted:#a898ba;
-  --accent:#e0449b; --accent-d:#c0267e; --accent-soft:#3d1a30; --on-accent:#ffffff;
+  --bg:#1c1712; --surface:#262019; --surface2:#2f271e; --line:#423628; --fg:#f4ede3; --muted:#b9a892;
+  --accent:#c9a47c; --accent-d:#b48a60; --accent-soft:#3e2f21; --on-accent:#231a10;
   --green:#4cc58b; --green-soft:#17372a; --red:#f0707a; --red-soft:#411f24; --blue:#7b95f2; --blue-soft:#222c52; --amber:#f0a73c; --amber-soft:#42300f; --violet:#a58cf0; --violet-soft:#2e2552;
-  --c1:#4cc58b; --c2:#f0707a; --c3:#7b95f2; --c4:#f0a73c; --c5:#a58cf0; --c6:#4cc3cf; --c7:#e0449b; --c8:#9a90a8;
+  --c1:#4cc58b; --c2:#f0707a; --c3:#7b95f2; --c4:#f0a73c; --c5:#a58cf0; --c6:#4cc3cf; --c7:#c9a47c; --c8:#a0968a;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#17121d; --surface:#211a29; --surface2:#2a2133; --line:#3a2f47; --fg:#f2ecf7; --muted:#a898ba;
-  --accent:#e0449b; --accent-d:#c0267e; --accent-soft:#3d1a30; --on-accent:#ffffff;
+  --bg:#1c1712; --surface:#262019; --surface2:#2f271e; --line:#423628; --fg:#f4ede3; --muted:#b9a892;
+  --accent:#c9a47c; --accent-d:#b48a60; --accent-soft:#3e2f21; --on-accent:#231a10;
   --green:#4cc58b; --green-soft:#17372a; --red:#f0707a; --red-soft:#411f24; --blue:#7b95f2; --blue-soft:#222c52; --amber:#f0a73c; --amber-soft:#42300f; --violet:#a58cf0; --violet-soft:#2e2552;
-  --c1:#4cc58b; --c2:#f0707a; --c3:#7b95f2; --c4:#f0a73c; --c5:#a58cf0; --c6:#4cc3cf; --c7:#e0449b; --c8:#9a90a8;
+  --c1:#4cc58b; --c2:#f0707a; --c3:#7b95f2; --c4:#f0a73c; --c5:#a58cf0; --c6:#4cc3cf; --c7:#c9a47c; --c8:#a0968a;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25); color-scheme:dark}
 
 *{box-sizing:border-box}
@@ -56,11 +56,11 @@ button{cursor:pointer}
 .btn.sm{padding:5px 10px;font-size:12px}
 
 .tip{background:var(--accent);color:var(--on-accent);border-radius:14px;padding:12px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
-.tip .tag{background:rgba(255,255,255,.22);border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;letter-spacing:.08em}
+.tip .tag{background:color-mix(in srgb,var(--on-accent) 22%,transparent);border-radius:6px;padding:2px 8px;font-size:10px;font-weight:800;letter-spacing:.08em}
 .tip div.msg{flex:1;min-width:200px}
 .tip b{display:block;font-size:14px}
-.tip small{opacity:.9;font-size:12px}
-.tip .btn{background:rgba(255,255,255,.18);border-color:rgba(255,255,255,.35);color:#fff}
+.tip small{opacity:.92;font-size:12px}
+.tip .btn{background:color-mix(in srgb,var(--on-accent) 16%,transparent);border-color:color-mix(in srgb,var(--on-accent) 35%,transparent);color:var(--on-accent)}
 
 .filters{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .sel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-weight:600}
@@ -77,9 +77,9 @@ button{cursor:pointer}
 .kpi .s{font-size:12px;color:var(--muted)}
 .kpi .ic{position:absolute;right:12px;top:12px;width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:14px}
 .kpi.main{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
-.kpi.main .l,.kpi.main .s{color:rgba(255,255,255,.88)}
-.kpi.main .ic{background:rgba(255,255,255,.2)}
-.kpi.main button{margin-top:4px;align-self:flex-start;background:none;border:0;color:#fff;text-decoration:underline;padding:0;font-size:12px}
+.kpi.main .l,.kpi.main .s{color:color-mix(in srgb,var(--on-accent) 88%,transparent)}
+.kpi.main .ic{background:color-mix(in srgb,var(--on-accent) 20%,transparent)}
+.kpi.main button{margin-top:4px;align-self:flex-start;background:none;border:0;color:var(--on-accent);text-decoration:underline;padding:0;font-size:12px}
 .bar{height:5px;border-radius:99px;background:var(--line);margin-top:8px;overflow:hidden}
 .bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
 .bar.over i{background:var(--red)}
