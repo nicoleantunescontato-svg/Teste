@@ -186,6 +186,21 @@ td input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent)}
 .wrow .wb i{display:block;height:100%;border-radius:99px}
 .wrow .wv{text-align:right}.wrow .wv span{margin-left:8px;color:var(--muted);font-size:12px}
 .wrow small{grid-column:1/-1;color:var(--muted);font-size:12px}
+.ctiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:14px}
+.ctile{position:relative;overflow:hidden;border-radius:22px;padding:18px 20px;color:#fff;min-height:210px;display:flex;flex-direction:column;gap:4px;
+  background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 42%,#000));box-shadow:0 10px 28px color-mix(in srgb,var(--c) 40%,transparent)}
+.ctile::after{content:"";position:absolute;right:-50px;top:-60px;width:190px;height:190px;border-radius:50%;background:rgba(255,255,255,.10);pointer-events:none}
+.ctile .tp{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:relative;z-index:1}
+.ctile .chipc{width:34px;height:26px;border-radius:6px;background:linear-gradient(135deg,#f3d58a,#b8913d)}
+.ctile .brand{font-size:11px;font-weight:800;letter-spacing:.08em}
+.ctile .bk{font-weight:600;font-size:14px;position:relative;z-index:1}
+.ctile .vl{font-size:27px;font-weight:800;letter-spacing:-.02em;position:relative;z-index:1}
+.ctile .pb{height:5px;border-radius:99px;background:rgba(255,255,255,.28);margin:6px 0 2px;position:relative;z-index:1}
+.ctile .pb i{display:block;height:100%;border-radius:99px;background:#fff}
+.ctile .sb{font-size:12px;opacity:.92;position:relative;z-index:1}
+.ctile .hls{margin-top:auto;padding-top:10px;display:flex;flex-direction:column;gap:3px;position:relative;z-index:1}
+.ctile .hl{display:flex;justify-content:space-between;gap:10px;font-size:12px;font-weight:600;letter-spacing:.04em}
+.ctile .hl span:first-child{letter-spacing:.18em}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .cchip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface2);border-radius:999px;padding:4px 12px 4px 4px;font-size:12px}
 .cchip i{width:22px;height:14px;border-radius:4px;display:inline-block;box-shadow:0 0 0 1px var(--line)}
@@ -445,6 +460,7 @@ function render(){
     <div class="kpi"><span class="l">Lucro</span><span class="ic" style="background:var(--violet-soft);color:var(--violet)">★</span><span class="v num ${T.lucro<0?'neg':''}">${brl(T.lucro)}</span><span class="s ${T.lucro<0?'neg':'pos'}">${T.lucro<0?'Resultado negativo':'Resultado positivo'}</span></div>
     <div class="kpi"><span class="l">Meta ${S.mode==='a'?'do ano':'do mês'}</span><span class="ic" style="background:var(--amber-soft);color:var(--amber)">◎</span><span class="v num">${brl(metaV)}</span><div class="bar"><i style="width:${Math.min(pct,100)}%"></i></div><span class="s">${pct}% da meta</span></div>
   </div>
+  ${cardsView(per)}
   ${whoView(per)}
   <div class="grid2">
     <div class="card"><div class="hd"><h3>Receitas × Despesas</h3><div class="legend"><span><i class="dot" style="background:var(--green)"></i>Receita</span><span><i class="dot" style="background:var(--red)"></i>Despesa</span><small>${S.mode==='a'?'ano '+S.y:'últimos 12 meses'}</small></div></div>${lineChart(win)}</div>
@@ -460,6 +476,19 @@ function render(){
   </div>`;
 }
 
+function cardsView(per){
+  const paidOnly=S.whoPaid==='paid';
+  const all=P().tx.filter(t=>inPeriod(t)&&isOut(t)&&(!paidOnly||t.paid));
+  const monthTot=sum(all);
+  const tiles=S.data.cards.map(c=>{
+    const mine=all.filter(t=>t.cardId===c.id),tot=sum(mine),lim=+c.limit||0;
+    const pct=lim?Math.round(tot/lim*100):(monthTot?Math.round(tot/monthTot*100):0);
+    const sub=lim?`${pct}% do limite de ${brl(lim)}`:`${pct}% do total de despesas de ${esc(per)}`;
+    const hl=c.holders.map(h=>`<div class="hl"><span>•••• ${esc(h.final||'····')}</span><span>${esc(h.name||'—')} · ${brl(sum(mine.filter(t=>t.holderId===h.id)))}</span></div>`).join('');
+    return`<div class="ctile" style="--c:${c.color}"><div class="tp"><span class="chipc"></span><span class="brand">${esc((c.brand||'').toUpperCase())}</span></div><div class="bk">${esc(c.bank)}</div><div class="vl num">${brl(tot)}</div><div class="pb"><i style="width:${Math.min(pct,100)}%"></i></div><div class="sb">${sub}</div><div class="hls">${hl}</div></div>`;
+  }).join('');
+  return`<div class="ctiles">${tiles}</div>`;
+}
 function cardSel(t){
   const h=holderById(t.holderId);
   return`<select class="cd" data-chg="f" data-f="holder" data-id="${t.id}" aria-label="Cartão e quem comprou" style="${h?'border-left:5px solid '+h.color:''}">${holderOpts(t.holderId)}</select>`;
@@ -488,13 +517,13 @@ function whoView(per){
   const chips=S.data.cards.map(c=>`<span class="cchip"><i style="background:${c.color}"></i>${esc(c.bank)} <b class="num">${brl(byCard[c.id]||0)}</b></span>`).join('');
   const nofinal=holders().some(h=>!h.final);
   return`<div class="card who"><div class="hd"><h3>Quem está gastando mais · ${esc(per)}</h3><select class="sel" id="whoSel" data-chg="whop" aria-label="Quais despesas contar"><option value="all"${paidOnly?'':' selected'}>Pago + a pagar</option><option value="paid"${paidOnly?' selected':''}>Só o que já foi pago</option></select></div>
-  <div class="whohead">${head}</div>${rows}<div class="chips">${chips}</div>
+  <div class="whohead">${head}</div>${rows}
   ${unN?`<p class="note" style="margin:10px 0 0">${brl(un)} em ${unN} lançamento${unN>1?'s':''} sem cartão ficam fora da comparação. Escolha o cartão na linha de cada um.</p>`:''}
   ${nofinal?`<p class="note" style="margin:6px 0 0">Dica: informe o final de cada cartão em <button class="chip v" data-act="cards">💳 Cartões</button> para identificar quem comprou.</p>`:''}</div>`;
 }
 function cardsModal(){
   modal(`<h2>Cartões</h2><p>Cada cartão leva a cor do banco. Cadastre quem usa pelo final do cartão (4 últimos dígitos).</p>
-  ${S.data.cards.map(c=>`<div class="ccard" style="border-left:6px solid ${c.color}"><div class="prow"><input type="color" value="${c.color}" data-chg="ccolor" data-id="${c.id}" aria-label="Cor do cartão"><input type="text" value="${esc(c.bank)}" data-chg="cbank" data-id="${c.id}" aria-label="Banco"><button class="btn sm" data-act="delcard" data-id="${c.id}">Excluir</button></div>
+  ${S.data.cards.map(c=>`<div class="ccard" style="border-left:6px solid ${c.color}"><div class="prow"><input type="color" value="${c.color}" data-chg="ccolor" data-id="${c.id}" aria-label="Cor do cartão"><input type="text" value="${esc(c.bank)}" data-chg="cbank" data-id="${c.id}" aria-label="Banco"><select data-chg="cbrand" data-id="${c.id}" aria-label="Bandeira" style="flex:none;width:112px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px"><option value="">Bandeira</option>${['Visa','Mastercard','Elo','Amex'].map(b=>`<option${c.brand===b?' selected':''}>${b}</option>`).join('')}</select><input type="number" min="0" step="100" value="${c.limit||''}" placeholder="Limite" data-chg="climit" data-id="${c.id}" aria-label="Limite do cartão" style="flex:none;width:100px"><button class="btn sm" data-act="delcard" data-id="${c.id}">Excluir</button></div>
   ${c.holders.map(h=>`<div class="prow hrow"><input type="text" value="${esc(h.name)}" placeholder="Quem usa" data-chg="hname" data-id="${h.id}" aria-label="Nome"><input class="fin" type="text" inputmode="numeric" maxlength="4" value="${esc(h.final)}" placeholder="final" data-chg="hfinal" data-id="${h.id}" aria-label="Final do cartão"><button class="x" data-act="delholder" data-id="${h.id}" aria-label="Remover pessoa">✕</button></div>`).join('')}
   <div><button class="btn sm" data-act="addholder" data-id="${c.id}">+ Pessoa neste cartão</button></div></div>`).join('')}
   <div class="acts"><button class="btn" data-act="addcard">+ Novo cartão</button><button class="btn pink" data-act="close">Concluir</button></div>`,'sm');
@@ -789,6 +818,8 @@ document.addEventListener('change',e=>{
     case 'saldo':p.saldo=parseFloat(el.value)||0;save();render();break;
     case 'limit':{const v=parseFloat(el.value);if(v>0)p.limits[el.dataset.cat]=v;else delete p.limits[el.dataset.cat];save();render();break}
     case 'ntype':$('#ncat').innerHTML=catOpts(el.value);$('#nholdwrap').hidden=el.value==='in';break;
+    case 'cbrand':{S.data.cards.find(c=>c.id===id).brand=el.value;save();render();break}
+    case 'climit':{S.data.cards.find(c=>c.id===id).limit=Math.max(0,parseFloat(el.value)||0);save();render();break}
     case 'whop':S.whoPaid=el.value;render();break;
     case 'ccolor':{const c=S.data.cards.find(c=>c.id===id);c.color=el.value;save();render();break}
     case 'cbank':{const c=S.data.cards.find(c=>c.id===id);c.bank=el.value.trim()||c.bank;save();render();break}
