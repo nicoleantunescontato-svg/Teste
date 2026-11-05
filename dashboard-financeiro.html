@@ -134,6 +134,7 @@ td input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent)}
 .desc{display:flex;gap:6px;align-items:center}
 .chip{border:0;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;background:var(--violet-soft);color:var(--violet)}
 .chip.v{background:var(--surface2);color:var(--muted);border:1px solid var(--line)}
+.sub{display:flex;gap:4px}.sub input{font-size:11px!important;font-style:italic;color:var(--muted)}.sub input.cd{width:84px!important;flex:none;font-style:normal;font-weight:700}
 .x{border:0;background:none;color:var(--muted);padding:4px 8px;border-radius:6px}
 .x:hover{background:var(--red-soft);color:var(--red)}
 .tot{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:14px}
@@ -190,7 +191,7 @@ td input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent)}
 const MONTHS=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const MS=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
 const CATS_IN=['Projeto','Consultoria','Mentoria','Salário','Outros'];
-const CATS_OUT=['Ferramentas/Software','Marketing','Alimentação','Moradia','Transporte','Impostos','Lazer','Saúde','Outros'];
+const CATS_OUT=['Ferramentas/Software','Marketing','Assinaturas','Trabalho','Maya','Alimentação','Moradia','Transporte','Impostos','Lazer','Saúde','Higiene','Outros'];
 const ALL=[...new Set([...CATS_IN,...CATS_OUT])];
 const EMOJIS=['💼','🏢','🏠','💰','💳','📊','🎓','🛒','🍰','🚗','✈️','🐶','❤️','💜','💙','🔥','🌱','🌸','🎯','📚','🎁','🎸','🎬','💎'];
 const TYPES={in:'Entrada',debit:'Despesa débito',credit:'Despesa crédito'};
@@ -247,6 +248,30 @@ const S={data:null,y:today.getFullYear(),m:today.getMonth(),mode:'m',tab:'in',me
 let M=null; // modal
 try{S.data=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S.data||!S.data.profiles||!S.data.profiles.length)S.data=seedAll();
+
+/* gastos reais no crédito, novembro/2026 (carga única) */
+function realTx(){
+  const L=[[15,'Amazon Prime BR','C6','Assinaturas',1,'assinatura mensal',19.90],[14,'Petlove','C6','Maya',1,'assinatura mensal',149.90],
+  [12,'Google One conta pessoal','Santander','Assinaturas',1,'',14.99],[11,'Clube iFood','C6','Assinaturas',1,'assinatura mensal',5.95],
+  [10,'Google One','C6','Trabalho',1,'conta profissional',49.99],[8,'Plano de saúde (SIDESC)','Santander','Saúde',1,'chega do C6 a partir daqui',98.60],
+  [6,'Shopee - Ótica Draffini (parcela 2/2)','Santander','Saúde',0,'',137.74],[3,'Panvel (parcela 3/3)','C6','Higiene',0,'protetor solar e tinta',30.27],
+  [1,'Farmácia Pague Menos (parcela 2/2)','Santander','Higiene',0,'tinta, remédio, pomada, shampoo',71.92],[30,'iCloud','Santander','Assinaturas',1,'2TB, a partir de outubro',66.90],
+  [27,'Spotify','Santander','Assinaturas',1,'assinatura mensal · não caiu em julho (sem limite no cartão)',23.90],[26,'Canva','Santander','Trabalho',1,'assinatura mensal · não caiu em julho (sem limite no cartão)',34.90]];
+  return L.map(([d,desc,card,cat,fx,obs,value])=>({id:uid(),date:`2026-11-${pad(d)}`,desc,card,obs,type:'credit',cat,fixed:!!fx,paid:false,value}));
+}
+try{
+  if(!localStorage.getItem('df-credito-nov26')){
+    if(S.data.sample){
+      const mk=(id,name,emoji,tx)=>({id,name,emoji,saldo:0,meta:0,limits:{},tx});
+      S.data={name:S.data.name||'',sample:false,active:'pes',profiles:[mk('pro','Profissional','🏢',[]),mk('pes','Pessoal','⭐',realTx())]};
+    } else {
+      (S.data.profiles.find(p=>p.id==='pes')||S.data.profiles[0]).tx.push(...realTx());
+      S.data.active=(S.data.profiles.find(p=>p.id==='pes')||S.data.profiles[0]).id;
+    }
+    S.y=2026;S.m=10;S.tab='credit';
+    localStorage.setItem('df-credito-nov26','1');localStorage.setItem(KEY,JSON.stringify(S.data));
+  }
+}catch(e){}
 const P=()=>S.data.profiles.find(p=>p.id===S.data.active)||S.data.profiles[0];
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S.data))}catch(e){}}
 function toast(msg){const t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(toast.h);toast.h=setTimeout(()=>t.hidden=true,2600)}
@@ -411,7 +436,7 @@ function row(t,cats){
   const opts=[...new Set([...cats,t.cat])].map(c=>`<option${c===t.cat?' selected':''}>${esc(c)}</option>`).join('');
   return`<tr class="${t.paid?'':'pend'}"><td><input type="checkbox" data-chg="paid" data-id="${t.id}" ${t.paid?'checked':''} aria-label="Marcar como ${t.type==='in'?'recebido':'pago'}"></td>
   <td><input type="date" value="${t.date}" data-chg="f" data-f="date" data-id="${t.id}" aria-label="Data"></td>
-  <td><div class="desc"><input type="text" value="${esc(t.desc)}" data-chg="f" data-f="desc" data-id="${t.id}" aria-label="Descrição"><button class="chip ${t.fixed?'':'v'}" data-act="togfixed" data-id="${t.id}" title="Alternar fixa/variável">${t.fixed?'fixa':'variável'}</button></div></td>
+  <td><div class="desc"><input type="text" value="${esc(t.desc)}" data-chg="f" data-f="desc" data-id="${t.id}" aria-label="Descrição"><button class="chip ${t.fixed?'':'v'}" data-act="togfixed" data-id="${t.id}" title="Alternar fixa/variável">${t.fixed?'fixa':'variável'}</button></div><div class="sub"><input type="text" class="cd" value="${esc(t.card||'')}" placeholder="Cartão" data-chg="f" data-f="card" data-id="${t.id}" aria-label="Cartão"><input type="text" value="${esc(t.obs||'')}" placeholder="Obs" data-chg="f" data-f="obs" data-id="${t.id}" aria-label="Observação"></div></td>
   <td><select data-chg="f" data-f="cat" data-id="${t.id}" aria-label="Categoria">${opts}</select></td>
   <td><input type="number" step="0.01" min="0" value="${t.value}" data-chg="f" data-f="value" data-id="${t.id}" aria-label="Valor" class="num"></td>
   <td><button class="x" data-act="del" data-id="${t.id}" aria-label="Excluir lançamento">✕</button></td></tr>`;
