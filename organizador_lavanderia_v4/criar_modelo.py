@@ -19,13 +19,13 @@ def diff(m,ms):return tm.boolean.difference([m]+ms,engine='manifold')
 
 # All geometry in millimetres. Each STL rests at z=0 for printing.
 # Frente (y=0): sabao em pe (100 x ~30 x 50). Atras: esponja em pe (130 x ~25 x 80). Lado direito: 3 escovas de dente.
-W,D=170,90            # suporte
-TW,TD=W+6,D+6         # bandeja = 176 x 96
+W,D=176,90            # suporte
+TW,TD=W+6,D+6         # bandeja = 182 x 96
 t=3
 XB=140                # bloco sabao+esponja: x 0-140 ; porta-escovas: x 140-170
-YS=(3,47)             # compartimento do sabao (44 mm de fundo, 134 de largura)
-YE=(50,87)            # compartimento da esponja (37 mm de fundo)
-H_SAB,H_ESP,H_ESC=32,48,60   # alturas das paredes (objetos sobressaem para pegar)
+YS=(3,43)             # compartimento do sabao (40 mm de fundo, 134 de largura)
+YE=(46,87)            # compartimento da esponja (41 mm de fundo; esponja curva ~25-30 mm + arco)
+H_SAB,H_ESP,H_ESC=25,48,60   # alturas das paredes (objetos sobressaem para pegar)
 plate=rounded(0,0,0,W,D,3)
 parts=[plate]
 # paredes externas do bloco sabao/esponja
@@ -64,7 +64,7 @@ def render(exploded):
     W,H=850,700;img=np.ones((H,W,3))*np.array([245,243,239]);depth=np.full((H,W),-np.inf)
     light=np.array([-0.5,-0.7,1.]);light/=np.linalg.norm(light)
     for mesh,color in [(tray,[38,39,40]),(b,[38,39,40])]:
-        v=(mesh.vertices-np.array([88,48,35]))@R
+        v=(mesh.vertices-np.array([91,48,35]))@R
         v[:,:2]*=3.6;v[:,0]+=W/2;v[:,1]=H/2-v[:,1]
         for face,n in zip(mesh.faces,mesh.face_normals):
             t=v[face];xmin=max(0,int(np.floor(t[:,0].min())));xmax=min(W-1,int(np.ceil(t[:,0].max())))
@@ -80,7 +80,7 @@ def render(exploded):
             region[mask]=z[mask];img[ymin:ymax+1,xmin:xmax+1][mask]=np.array(color)*(.65+.35*max(0,np.dot(n,light)))
     return img.astype('uint8')
 fig,axs=plt.subplots(1,2,figsize=(12,6),facecolor='#f5f3ef')
-for ax,title,ex in zip(axs,['Montado · 17,6 × 9,6 × 6,6 cm','Suporte e bandeja separados'],[False,True]):
+for ax,title,ex in zip(axs,['Montado · 18,2 × 9,6 × 6,6 cm','Suporte e bandeja separados'],[False,True]):
     ax.imshow(render(ex));ax.axis('off');ax.set_title(title,fontsize=13)
 fig.suptitle('Organizador de lavanderia',fontsize=22)
 fig.text(.5,.08,'Sabão na frente · Esponja atrás · porta-escovas aberto ao lado',ha='center',fontsize=12)
