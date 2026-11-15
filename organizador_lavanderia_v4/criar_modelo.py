@@ -34,15 +34,14 @@ parts+=[box(0,0,0,XB,t,H_SAB),box(0,D-t,0,XB,t,H_ESP),box(0,0,0,t,YS[1]+t,H_SAB)
 # divisoria entre sabao e esponja (altura da esponja)
 parts.append(box(0,YS[1],0,XB,YE[0]-YS[1],H_ESP))
 # porta-escovas: bloco com 3 furos
-parts.append(rounded(XB,0,0,W-XB,D,H_ESC,3))
+parts.append(diff(rounded(XB,0,0,W-XB,D,H_ESC,3),[rounded(XB+t,t,t,W-XB-2*t,D-2*t,H_ESC,2)]))
 body=union(parts)
 holes=[]
 # drenagem do sabao e da esponja
 for x in range(14,XB-10,22):
     holes.append(rounded(x,YS[0]+16,-1,14,5,5,2));holes.append(rounded(x,YE[0]+16,-1,14,5,5,2))
-# 3 furos para escovas (diametro 18, profundidade ate 5 mm do fundo) + dreno
-for y in [17,45,73]:
-    c=tm.creation.cylinder(9,H_ESC,sections=40);c.apply_translation([XB+15,y,5+H_ESC/2]);holes.append(c)
+# porta-escovas aberto: furos de drenagem no fundo
+for y in [20,45,70]:
     d=tm.creation.cylinder(2.5,12,sections=24);d.apply_translation([XB+15,y,2]);holes.append(d)
 body=diff(body,holes)
 # Bandeja: folga lateral 0,6 mm; apoios deixam 4 mm de espaco para drenagem.
@@ -84,5 +83,5 @@ fig,axs=plt.subplots(1,2,figsize=(12,6),facecolor='#f5f3ef')
 for ax,title,ex in zip(axs,['Montado · 17,6 × 9,6 × 6,6 cm','Suporte e bandeja separados'],[False,True]):
     ax.imshow(render(ex));ax.axis('off');ax.set_title(title,fontsize=13)
 fig.suptitle('Organizador de lavanderia',fontsize=22)
-fig.text(.5,.08,'Sabão na frente · Esponja atrás · 3 escovas de dente ao lado',ha='center',fontsize=12)
+fig.text(.5,.08,'Sabão na frente · Esponja atrás · porta-escovas aberto ao lado',ha='center',fontsize=12)
 plt.savefig(OUT/'Previa.png',dpi=160,bbox_inches='tight')
