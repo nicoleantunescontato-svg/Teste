@@ -43,6 +43,9 @@ for x in range(14,XB-10,22):
 # porta-escovas aberto: furos de drenagem no fundo
 for y in [20,45,70]:
     d=tm.creation.cylinder(2.5,12,sections=24);d.apply_translation([XB+15,y,2]);holes.append(d)
+# Recortes para pegar com os dedos: parede da frente (sabao) e divisoria (esponja)
+holes.append(box(XB/2-22,-1,8,44,t+2,H_ESP))
+holes.append(box(XB/2-22,YS[1]-1,22,44,t+2,H_ESP))
 body=diff(body,holes)
 # Bandeja: folga lateral 0,6 mm; apoios deixam 4 mm de espaco para drenagem.
 tray=diff(rounded(0,0,0,TW,TD,9,6),[rounded(2.4,2.4,2,TW-4.8,TD-4.8,9,3.6)])
